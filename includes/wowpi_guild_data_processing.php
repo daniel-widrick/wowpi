@@ -2,7 +2,7 @@
 function wowpi_get_guild_progression($guild_name = null, $guild_realm = null)
 {  
   global $wowpi_options;
-  $guilds = get_option('wowpi_guilds_progress');
+  $guilds = wowpi_widrick_get_option('wowpi_guilds_progress');
   //echo '<pre>'; print_r($guilds); echo '</pre>';
   $caching = $wowpi_options['guild_caching'];
   
@@ -140,7 +140,7 @@ function wowpi_get_guild_progression($guild_name = null, $guild_realm = null)
     }
     $guilds[$guild_realm][$guild_name]['data'] = $progress;
     $guilds[$guild_realm][$guild_name]['last_update'] = current_time('timestamp');
-    update_option('wowpi_guilds_progress', $guilds);
+    wowpi_widrick_update_option('wowpi_guilds_progress', $guilds);
   }
   return $guilds[$guild_realm][$guild_name]['data'];
 }
@@ -202,7 +202,7 @@ function wowpi_get_guild_tabard($guild_name = null, $realm = null)
 function wowpi_get_guild($field = null, $guild_name = null, $guild_realm = null, $region = null, $locale = null, $limit = null)
 {
   global $wowpi_options;
-  $guilds = get_option('wowpi_guilds');
+  $guilds = wowpi_widrick_get_option('wowpi_guilds');
   //echo '<pre>'; print_r($guilds); echo '</pre>';
   $caching = $wowpi_options['guild_caching'];
   
@@ -277,7 +277,7 @@ function wowpi_get_guild($field = null, $guild_name = null, $guild_realm = null,
   else
   {
     wowpi_call_api_guilds($guilds, $guild_name, $field, $guild_realm, $region, $locale);
-    $guilds = get_option('wowpi_guilds');
+    $guilds = wowpi_widrick_get_option('wowpi_guilds');
     //echo '<pre>';print_r($guilds);echo '</pre>';
     if(isset($guilds[$guild_realm][$guild_name]))
     {
@@ -412,5 +412,5 @@ function wowpi_call_api_guilds($guilds, $guild_name, $field, $realm = null, $reg
     $guilds[$decoded->realm][$decoded->name]['data'][$field] = $decoded->{$field};
   }
   $guilds[$decoded->realm][$decoded->name]['last_update'] = current_time('timestamp');
-  update_option('wowpi_guilds', $guilds);
+  wowpi_widrick_update_option('wowpi_guilds', $guilds);
 }

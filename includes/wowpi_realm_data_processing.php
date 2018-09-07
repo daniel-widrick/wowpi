@@ -2,7 +2,7 @@
 function wowpi_get_realms($region = null, $locale = null)
 {
   global $wowpi_options;
-  $realms = get_option('wowpi_realms');
+  $realms = wowpi_widrick_get_option('wowpi_realms');
   //echo '<pre>'; print_r($guilds); echo '</pre>';
   
   // get the caching time in seconds
@@ -60,7 +60,7 @@ function wowpi_call_api_realms($region = null, $locale = null)
         }
 
         //echo '<pre>';print_r($the_realms);echo '</pre>';
-        update_option('wowpi_realms', $the_realms);
+        wowpi_widrick_update_option('wowpi_realms', $the_realms);
         return $the_realms;
     }
     return false;

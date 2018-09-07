@@ -2,7 +2,7 @@
 function wowpi_get_spell($spell_id, $region = null, $locale = null)
 {
   global $wowpi_options;
-  $returned = get_option('wowpi_spells');
+  $returned = wowpi_widrick_get_option('wowpi_spells');
   $caching = intval($wowpi_options['caching']);
   
   if(!isset($region))
@@ -40,8 +40,8 @@ function wowpi_get_spell($spell_id, $region = null, $locale = null)
         'cast_time' => $curl_response->castTime
       );
     }
-    update_option('wowpi_spells', $returned);
+    wowpi_widrick_update_option('wowpi_spells', $returned);
   }
-  $returned = get_option('wowpi_spells');
+  $returned = wowpi_widrick_get_option('wowpi_spells');
   return $returned['data'][$spell_id];  
 }

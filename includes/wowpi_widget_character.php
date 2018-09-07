@@ -46,7 +46,7 @@ class wowpi_widget_character extends WP_Widget {
   public function form( $instance ) {
 		//print_r($instance);
     global $wowpi_character_showable;
-    $options = get_option('wowpi_options');
+    $options = wowpi_widrick_get_option('wowpi_options');
     if ( isset( $instance[ 'character_name' ] ) ) {
       $character_name = $instance[ 'character_name' ];
     }

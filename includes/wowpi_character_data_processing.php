@@ -2,7 +2,7 @@
 function wowpi_get_character($field = null, $character_name = null, $realm = null, $region = null, $locale = null)
 {
   global $wowpi_options;
-  $characters = get_option('wowpi_characters');
+  $characters = wowpi_widrick_get_option('wowpi_characters');
   $caching = $wowpi_options['character_caching'];
   
   
@@ -50,7 +50,7 @@ function wowpi_get_character($field = null, $character_name = null, $realm = nul
   else
   {
     wowpi_call_api_character($characters, $character_name, $realm, $region, $locale);
-    $characters = get_option('wowpi_characters');
+    $characters = wowpi_widrick_get_option('wowpi_characters');
     $character_data = $characters[$realm][$character_name]['data'];
   }
 
@@ -322,5 +322,5 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
   //unset($decoded->petSlots);
   
   $characters[$realm][$character_name] = $character_data;
-  update_option('wowpi_characters', $characters);
+  wowpi_widrick_update_option('wowpi_characters', $characters);
 }

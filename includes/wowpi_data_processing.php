@@ -97,7 +97,7 @@ function wowpi_general_data($data_requested,$data_type = 'character')
 {
   global $wowpi_options;
   $data_requested = filter_var($data_requested, FILTER_SANITIZE_STRING);
-  $returned = get_option('wowpi_'.$data_type.'_'.$data_requested);
+  $returned = wowpi_widrick_get_option('wowpi_'.$data_type.'_'.$data_requested);
   if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp')))
   {
     $region = (isset($wowpi_options['region']) && strlen($wowpi_options['region'])>0) ? $wowpi_options['region'] : 'eu';
@@ -249,9 +249,9 @@ function wowpi_general_data($data_requested,$data_type = 'character')
     }
     //echo '<pre>';print_r($returned['data']);echo '</pre>';
     if(isset($returned['data']) && !empty($returned['data'])) $returned['last_update'] = current_time('timestamp');
-    update_option('wowpi_'.$data_type.'_'.$data_requested, $returned);
+    wowpi_widrick_update_option('wowpi_'.$data_type.'_'.$data_requested, $returned);
   }  
-  $returned = get_option('wowpi_'.$data_type.'_'.$data_requested);
+  $returned = wowpi_widrick_get_option('wowpi_'.$data_type.'_'.$data_requested);
   return $returned['data'];
 }
 

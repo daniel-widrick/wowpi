@@ -2,7 +2,7 @@
 function wowpi_get_item($item_id, $region = null, $locale = null)
 {
   global $wowpi_options;
-  $returned = get_option('wowpi_items');
+  $returned = wowpi_widrick_get_option('wowpi_items');
   $caching = intval($wowpi_options['caching']);
   
   if(!isset($region))
@@ -40,9 +40,9 @@ function wowpi_get_item($item_id, $region = null, $locale = null)
         'quality' => $curl_response->quality
       );
     }
-    update_option('wowpi_items', $returned);
+    wowpi_widrick_update_option('wowpi_items', $returned);
   }
-  $returned = get_option('wowpi_items');
+  $returned = wowpi_widrick_get_option('wowpi_items');
   return $returned['data'][$item_id];  
 }
 
@@ -50,7 +50,7 @@ function wowpi_get_item($item_id, $region = null, $locale = null)
 function wowpi_get_artifact($artifact_id, $region = null, $locale = null)
 {
   global $wowpi_options;
-  $returned = get_option('wowpi_artifact_weapons');
+  $returned = wowpi_widrick_get_option('wowpi_artifact_weapons');
   
   if(!isset($region))
   {
@@ -94,8 +94,8 @@ function wowpi_get_artifact($artifact_id, $region = null, $locale = null)
         'artifact_id' => $curl_response->artifactId
       );
     }
-    update_option('wowpi_artifact_weapons', $returned);
+    wowpi_widrick_update_option('wowpi_artifact_weapons', $returned);
   }
-  $returned = get_option('wowpi_artifact_weapons');
+  $returned = wowpi_widrick_get_option('wowpi_artifact_weapons');
   return $returned['data'][$artifact_id];
 }
