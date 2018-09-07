@@ -53,6 +53,7 @@ $wowpi_character_showable = array(
 * includes
 ********************************************/
 
+include('includes/wowpi_widrick_options.php');
 include('includes/scripts.php'); // This controls all JS / CSS
 include('includes/wowpi_data_processing.php'); // This controls all saving of data
 include('includes/wowpi_item_data_processing.php');
