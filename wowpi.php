@@ -37,7 +37,6 @@ $wowpi_plugin_name = 'WoWpi - World of Warcraft API Armory';
 $wowpi_plugin_url = plugin_dir_url( __FILE__ );
 $wowpi_plugin_dir = plugin_dir_path( __FILE__ );
 $wowpi_options = get_option('wowpi_options');
-
 $wowpi_stylings = array('wowpi_faction'=>'Faction styling','wowpi_light' => 'Light','wowpi_dark'=>'Dark','no_styling'=>'No styling');
 $wowpi_character_showable = array(
   'achievement_feed' => __('Achievement Feed','wowpi'),
@@ -55,6 +54,7 @@ $wowpi_character_showable = array(
 ********************************************/
 
 include('includes/wowpi_widrick_options.php');
+include('includes/wowpi_widrick_caching.php');
 include('includes/scripts.php'); // This controls all JS / CSS
 include('includes/wowpi_data_processing.php'); // This controls all saving of data
 include('includes/wowpi_item_data_processing.php');
