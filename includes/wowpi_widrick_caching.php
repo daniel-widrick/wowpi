@@ -52,9 +52,10 @@ function wowpi_widrick_character_cache_test($characterHash)
 				$expireTime = floor($instance / WOWPI_WIDRICK_CACHING_TIME) * WOWPI_WIDRICK_CACHING_TIME + $today;
 				break;
 			default:
+				echo "Unknown caching mode";
 				return false;
 		}
-		if(filemtime($cacheFile) < $expireTime)
+		if(filemtime($cacheFile) > $expireTime)
 			return true;
 	}
 	return false;
@@ -63,7 +64,9 @@ function wowpi_widrick_character_cache_test($characterHash)
 function wowpi_widrick_character_cache_get($characterHash)
 {
 	if(wowpi_widrick_character_cache_test($characterHash))
+	{
 		return unserialize(file_get_contents(WOWPI_WIDRICK_CACHING_BASE_DIR.$characterHash));
+	}
 	else
 		return false;
 }

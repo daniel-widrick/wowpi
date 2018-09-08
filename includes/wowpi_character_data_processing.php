@@ -64,7 +64,8 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
 	$char_cache = wowpi_widrick_character_cache_get($characterHash);
 	if($char_cache !== false)
 	{
-		$characters[$realm][$character_name] = $character_chace;
+		$characters[$realm][$character_name] = $char_cache;
+		wowpi_widrick_update_option('wowpi_characters', $characters);
 		return $char_cache;
 	}
 	
