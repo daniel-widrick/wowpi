@@ -175,7 +175,7 @@ function wowpi_options_validate($input)
 	
 	// api key
 	$wowpi_options['api_key'] = trim($input['api_key']);
-	if(!preg_match('/^[a-z0-9]{32}$/i', $wowpi_options['api_key']))
+	if(!preg_match('/^[a-z0-9]{34}$/i', $wowpi_options['api_key']))
 	{
 		$wowpi_options['api_key'] = '';
 	}

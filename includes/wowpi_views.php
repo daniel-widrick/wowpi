@@ -282,6 +282,77 @@ function wowpi_show_pvp($character_name = null,$realm = null, $with_title = true
 	return $output;
 }
 
+
+function wowpi_show_progression($character_name = null,$realm = null, $with_title = true)
+{
+	$progression = wowpi_get_character('progression',$character_name,$realm);
+	$character_data = wowpi_get_character(null, $character_name,$realm); 
+	
+	$output .='<div class="module progression"><p>Uldir:</p>';
+	$output .='<p class="raid-progress">';
+	
+	foreach($progression['raids'] as $raids) {
+		if($raids->name == 'Uldir')
+		{
+			$lfr=0;
+			$normal=0;
+			$heroic=0;
+			$mythic=0;
+			foreach($raids->bosses as $bosses)
+			{
+				if (!empty($bosses->lfrKills))
+				{
+					$lfr++;
+				}
+				if (!empty($bosses->normalKills))
+				{
+					$normal++;
+				}
+				if (!empty($bosses->heroicKills))
+				{
+					$heroic++;
+				}
+				if (!empty($bosses->mythicKills))
+				{
+					$mythic++;
+				}
+			}
+			
+			if ($lfr>=8) {
+				$output .='<span class="lfr raid-clear">LFR: '.$lfr.'/8</span><br />';
+			}
+			else {
+				$output .='<span class="lfr">LFR: '.$lfr.'/8</span><br />';
+			}
+			if ($normal>=8) {
+				$output .='<span class="normal raid-clear">Normal: '.$normal.'/8</span><br />';
+			}
+			else {
+				$output .='<span class="normal">Normal: '.$normal.'/8</span><br />';
+			}
+			if ($heroic>=8) {
+				$output .='<span class="heroic raid-clear">Heroic: '.$heroic.'/8</span><br />';
+			}
+			else {
+				$output .='<span class="heroic">Heroic: '.$heroic.'/8</span><br />';
+			}
+			if ($mythic>=8) {
+				$output .='<span class="mythic raid-clear">Mythic: '.$mythic.'/8</span><br />';
+			}
+			else {
+				$output .='<span class="mythic">Mythic: '.$mythic.'/8</span><br />';
+			}
+			
+			
+		}
+	}
+	
+	$output .='</p></div>';
+	
+	return $output;
+}
+
+
 function wowpi_show_ilvl($character_name = null, $realm = null, $with_title = true)
 {
   $gear = wowpi_get_character('gear',$character_name, $realm);
@@ -317,7 +388,7 @@ function wowpi_show_gear($character_name = null, $realm = null, $with_title = tr
       echo '</pre>';
       */
       $output .= wowpi_get_tooltip($the_item->id,'item','<img src="'.wowpi_retrieve_image($the_item->icon).'" class="q'.$the_item->quality.'">',$advanced,'class="q'.$the_item->quality.'" title="'.$the_item->name.'"');
-      //echo '<img src="//media.blizzard.com/wow/icons/36/'.$the_item->icon.'.jpg" />';
+      //echo '<img src="//media.battle.net/wow/icons/36/'.$the_item->icon.'.jpg" />';
     }
   }
   $output .= '</div>';
@@ -419,7 +490,7 @@ function wowpi_show_activity($character_name = null, $realm = null, $with_title 
       {
         echo '<img src="'.wowpi_retrieve_image($activity->itemId).'" class="q">[icondb='.$activity->itemId.']';
       }
-      //echo '<img src="//media.blizzard.com/wow/icons/36/'.$activity->achievement->icon.'.jpg" />';
+      //echo '<img src="//media.battle.net//wow/icons/36/'.$activity->achievement->icon.'.jpg" />';
       //echo date('d.m.Y H:i:s', $activity->timestamp);
       echo '</li>';
     }

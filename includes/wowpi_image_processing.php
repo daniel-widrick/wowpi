@@ -3,7 +3,7 @@
 function wowpi_retrieve_image($image_name = null, $image_type = 'icon', $image_size = '36', $image_extension = 'jpg')
 {
     global $wowpi_options;
-    $region = (isset($wowpi_options['region']) && strlen($wowpi_options['region'])>0) ? $wowpi_options['region'] : 'eu';
+    $region = (isset($wowpi_options['region']) && strlen($wowpi_options['region'])>0) ? $wowpi_options['region'] : 'us';
   if(!isset($image_name))
   {
     return false;

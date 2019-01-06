@@ -77,9 +77,9 @@ function wowpi_get_curl($api, $name, $field, $realm = null, $region = null, $loc
   }
   
   //create the service url
-  $service_url = 'https://'.$region.'.api.battle.net/wow/'.$api.'/'.trim(str_replace(array(' ','\''),array('%20','%27'),$realm)).'/'.rawurlencode($name).'?';
+  $service_url = 'https://'.$region.'.api.blizzard.com/wow/'.$api.'/'.trim(str_replace(array(' ','\''),array('%20','%27'),$realm)).'/'.rawurlencode($name).'?';
   $service_url .= ($field=='profile') ? '' : 'fields='.$field.'&';
-  $service_url .= 'locale='.$locale.'&apikey='.$wowpi_key;
+  $service_url .= 'locale='.$locale.'&access_token='.$wowpi_key;
   
   // the curl thingy
   $curl_response = wowpi_retrieve_data($service_url);
@@ -104,7 +104,7 @@ function wowpi_general_data($data_requested,$data_type = 'character')
     $locale = (isset($wowpi_options['locale']) && strlen($wowpi_options['locale'])>0) ? $wowpi_options['locale'] : 'en_GB';
     $wowpi_key = $wowpi_options['api_key'];
     
-    $service_url = 'https://'.$region.'.api.battle.net/wow/data/'.$data_type.'/'.$data_requested.'?locale='.$locale.'&apikey='.$wowpi_key;
+    $service_url = 'https://'.$region.'.api.blizzard.com/wow/data/'.$data_type.'/'.$data_requested.'?locale='.$locale.'&access_token='.$wowpi_key;
     
     $curl_response = wowpi_retrieve_data($service_url);
     $decoded = json_decode($curl_response);
@@ -257,6 +257,20 @@ function wowpi_general_data($data_requested,$data_type = 'character')
 
 function wowpi_retrieve_data($service_url)
 {
+
+//Start widrick fix for broken wordpress curl
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $service_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+$response = curl_exec($ch);
+
+if(curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 200)
+	return false;
+if($response === false)
+	return false;
+return $response;
+//End widrick fix for broken wordpress curl
+
   $response = wp_remote_get($service_url);
   if (!is_array($response)) {
     echo 'Error occured during query. Maybe your website doesn\'t allow outgoing connections? <!--'.$service_url.'--> Response code: '. wp_remote_retrieve_response_code( $response );

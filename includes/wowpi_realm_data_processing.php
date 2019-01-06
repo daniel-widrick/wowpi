@@ -32,8 +32,8 @@ function wowpi_call_api_realms($region = null, $locale = null)
   }
   
   //create the service url
-  $service_url = 'https://'.$region.'.api.battle.net/wow/realm/status?';
-  $service_url .= 'locale='.$locale.'&apikey='.$wowpi_options['api_key'];
+  $service_url = 'https://'.$region.'.api.blizzard.com/wow/realm/status?';
+  $service_url .= 'locale='.$locale.'&access_token='.$wowpi_options['api_key'];
   
   // the curl thingy
   $curl_response = wowpi_retrieve_data($service_url);

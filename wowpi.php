@@ -47,7 +47,8 @@ $wowpi_character_showable = array(
   'kills' => __('Honorable Kills','wowpi'),
   'professions' => __('Professions','wowpi'),
   'talents' => __('Talents','wowpi'),
-  'pvp' => __('PvP Brackets','wowpi'));
+  'pvp' => __('PvP Brackets','wowpi'),
+  'progression' => __('Raid Progression','wowpi'));
 
 /********************************************
 * includes

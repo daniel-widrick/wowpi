@@ -22,7 +22,7 @@ function wowpi_get_spell($spell_id, $region = null, $locale = null)
   {
     $wowpi_key = $wowpi_options['api_key'];
     
-    $service_url = 'https://'.$region.'.api.battle.net/wow/spell/'.$spell_id.'?locale='.$locale.'&apikey='.$wowpi_key;
+    $service_url = 'https://'.$region.'.api.blizzard.com/wow/spell/'.$spell_id.'?locale='.$locale.'&access_token='.$wowpi_key;
     
     $curl_response = wowpi_retrieve_data($service_url);
     
