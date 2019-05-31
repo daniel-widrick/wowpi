@@ -237,7 +237,8 @@ function wowpi_getRealms($region = null, $locale = null) {
 }
 
 function wowpi_getCharacterAchievements() {
-    $returned = wowpi_widrick_get_option('wowpi_character_achievements');
+    //$returned = wowpi_widrick_get_option('wowpi_character_achievements');
+    $resturned = false;
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
         $serviceUrl = 'https://' . wowpi_getRegion() . '.api.blizzard.com/wow/data/character/achievements?locale=' . wowpi_getLocale() . '&access_token=' . wowpi_getToken();
         $curl_response = wowpi_retrieve_data($serviceUrl);
@@ -293,9 +294,9 @@ function wowpi_getCharacterAchievements() {
             $returned['last_update'] = current_time('timestamp');
         }
 
-        wowpi_widrick_update_option('wowpi_character_achievements', $returned);
+        //wowpi_widrick_update_option('wowpi_character_achievements', $returned);
     }
-    $returned = wowpi_widrick_get_option('wowpi_character_achievements');
+    //$returned = wowpi_widrick_get_option('wowpi_character_achievements');
     return $returned['data'];
 }
 
@@ -385,7 +386,6 @@ function wowpi_getCharacterData($characterName = null, $realmName = null, $regio
     $characterName = isset($characterName) ? $characterName : $wowpi_options['character_name'];
     $region = wowpi_getRegion($region);
     $locale = wowpi_getLocale($locale);
-
     $realmName = wowpi_getRealm($realmName);
     $realmsData = wowpi_getRealms($region, $locale);
 
@@ -393,7 +393,8 @@ function wowpi_getCharacterData($characterName = null, $realmName = null, $regio
 
     $characterOptionName = 'wowpi_character_data_'.$realmSlug.'_'.urlencode(strtolower($characterName));
 
-    $returned = wowpi_widrick_get_option($characterOptionName);
+    //$returned = wowpi_widrick_get_option($characterOptionName);
+    $returned == false;
 
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+$characterCaching)<current_time('timestamp'))) {
 
@@ -455,9 +456,9 @@ function wowpi_getCharacterData($characterName = null, $realmName = null, $regio
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        wowpi_widrick_update_option($characterOptionName, $returned);
+        //wowpi_widrick_update_option($characterOptionName, $returned);
     }
-    $returned = wowpi_widrick_get_option($characterOptionName);
+    //$returned = wowpi_widrick_get_option($characterOptionName);
     return $returned['data'];
 
 }
@@ -553,7 +554,6 @@ function wowpi_parseGuildDataMembers($decoded)
     $membersArr = array();
 
     foreach ($decoded->members as $member) {
-        //var_dump($member);
         $membersArr[] = array(
             'name' => $member->character->name,
             'rank' => $member->rank,

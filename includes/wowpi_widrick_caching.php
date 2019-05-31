@@ -17,6 +17,10 @@ define('WOWPI_WIDRICK_CACHING_TIME',86400);
 define('WOWPI_WIDRICK_CACHING_BASE_DIR','./'.'wowpicache/');
 
 
+function wowpi_widrick_showChar_cache_save($charShowHash,$output)
+{
+	return wowpi_widrick_character_cache_save($charShowHash,$output);
+}
 function wowpi_widrick_url_cache_save($urlHash,$response)
 {
 	//Shhhh character function is general purpose
@@ -65,6 +69,11 @@ function wowpi_widrick_character_cache_test($characterHash)
 			return true;
 	}
 	return false;
+}
+
+function wowpi_widrick_showChar_cache_get($charShowHash)
+{
+	return wowpi_widrick_character_cache_get($charShowHash);
 }
 function wowpi_widrick_url_cache_get($urlHash)
 {

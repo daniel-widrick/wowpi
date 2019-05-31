@@ -112,21 +112,28 @@ $cacheURLHash = md5($cacheURL);
 $cacheURLResult = wowpi_widrick_url_cache_get($cacheURLHash);
 if($cacheURLResult !== false)
 {
-	var_dump($cacheURL);
+	//var_dump($service_url);
+	echo '<!-- cacheHit: ' . $service_url . '-->';
 	return $cacheURLResult;
 }
 
-	//Start widrick fix for broken wordpress curl
+//Start widrick fix for broken wordpress curl
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $service_url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-$response = curl_exec($ch);
+//curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+ob_Start();
+$result = curl_exec($ch);
+$response = ob_get_contents();
+ob_end_clean();
 
 if(curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 200)
 {
+	var_dump($service_url);
+	var_dump(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+	var_dump(debug_backtrace());
 	return false;
 }
-if($response === false)
+if($result === false)
 {
 	echo "CURL DIED!";
 	return false;
@@ -135,15 +142,6 @@ wowpi_widrick_url_cache_save($cacheURLHash,$response);
 return $response;
 //End widrick fix for broken wordpress curl
 
-  $response = wp_remote_get($service_url);
-  if (!is_array($response)) {
-    echo 'Error occured during query. Maybe your website doesn\'t allow outgoing connections? <!--'.$service_url.'--> Response code: '. wp_remote_retrieve_response_code( $response );
-    return false;
-  }
-  else
-  {
-    return $response['body'];
-  }
 }
 
 

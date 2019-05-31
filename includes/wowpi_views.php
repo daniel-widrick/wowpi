@@ -146,6 +146,10 @@ function wowpi_show_character($with = array(),$characterName=null,$realm=null,$r
 
 function wowpi_show_achievement_points($characterName, $realm, $with_title = true)
 {
+	$cacheCharHash = md5( md5($characterName) . md5($realm) . md5($with_title) );
+	$cacheChar = wowpi_widrick_showChar_cache_get($cacheCharHash);
+	if($cacheChar !== false)
+		return $cacheChar;
     $character = wowpi_getCharacterData($characterName,$realm);
     $achievementPoints = $character['profile']['achievementPoints'];
     $allAchievements = wowpi_getCharacterAchievements();
@@ -154,6 +158,7 @@ function wowpi_show_achievement_points($characterName, $realm, $with_title = tru
     $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('achievement_points').'</div>' : '';
     $output .= '<div class="total">'.$achievementPoints.'</div>';
     $output .= '<div class="from">'.__('out of','wowpi').' '.$allAchievements['total_points'].'</div>';
+    wowpi_widrick_showChar_save($cacheCharHash,$output);
     return $output;
 }
 
