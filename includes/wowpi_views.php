@@ -54,11 +54,12 @@ function displayCurrentSpecTitle($character_name = null, $realm = null)
 
 function wowpi_show_character($with = array(),$characterName=null,$realm=null,$region=null,$locale=null)
 {
+	$charShowHash = md5(serialize(func_get_args()));
 
-        $cacheChar = wowpi_widrick_showChar_cache_get($cacheCharHash);
+        $cacheChar = wowpi_widrick_showChar_cache_get($charShowHash);
         if($cacheChar !== false)
                 return $cacheChar;
-
+ob_start();
     $character = wowpi_getCharacterData($characterName,$realm,$region,$locale);
     if(!isset($character) || empty($character)) {
         echo 'Could not retrieve data for character '.$characterName;
@@ -147,6 +148,10 @@ function wowpi_show_character($with = array(),$characterName=null,$realm=null,$r
   ?>
 </div>
 <?php
+$output = ob_get_contents();
+ob_end_clean();
+wowpi_widrick_showChar_cache_save($charShowHash,$output);
+echo $output;
 }
 
 function wowpi_show_achievement_points($characterName, $realm, $with_title = true)
