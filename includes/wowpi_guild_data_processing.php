@@ -20,7 +20,6 @@ function wowpi_get_guild_progression($guild_name = null, $guild_realm = null)
   elseif($guild_name==null && empty($character_guild_data))
   {
     return false;
-    die();
   }
   if($guild_realm==null || strlen($guild_realm)==0)
   {
@@ -236,7 +235,6 @@ function wowpi_get_guild($field = null, $guild_name = null, $guild_realm = null,
   elseif($guild_name==null && empty($character_guild_data))
   {
     return false;
-    die();
   }
   if(!isset($guild_name))
   {

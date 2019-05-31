@@ -106,6 +106,7 @@ function wowpi_get_curl($api, $name, $field, $realm = null, $region = null, $loc
 
 function wowpi_retrieve_data($service_url)
 {
+
 	
 	//Start widrick fix for broken wordpress curl
 $ch = curl_init();
@@ -114,9 +115,14 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 $response = curl_exec($ch);
 
 if(curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 200)
+{
 	return false;
+}
 if($response === false)
+{
+	echo "CURL DIED!";
 	return false;
+}
 return $response;
 //End widrick fix for broken wordpress curl
 

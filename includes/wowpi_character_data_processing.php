@@ -65,6 +65,15 @@ function wowpi_get_character($field = null, $character_name = null, $realm = nul
 
 function wowpi_call_api_character($characters, $character_name, $realm = null, $region = null, $locale = null)
 {
+	global $wowpi_options;	
+	$characterHash = $region . '-' . $realm . '-' . $character_name;	
+	$char_cache = wowpi_widrick_character_cache_get($characterHash);	
+	if($char_cache !== false)	
+	{	
+		$characters[$realm][$character_name] = $char_cache;	
+		wowpi_widrick_update_option('wowpi_characters', $characters);	
+		return $char_cache;	
+	}
   
   // get ALL the fields
   $fields_arr = array(
@@ -326,4 +335,5 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
   
   $characters[$realm][$character_name] = $character_data;
   wowpi_widrick_update_option('wowpi_characters', $characters);
+  wowpi_widrick_character_cache_save($characterHash,$character_data);
 }

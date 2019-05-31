@@ -11,7 +11,6 @@ function wowpi_show_guild($with = null,$guild_name = null, $realm = null)
   {
     echo '<!--Guild doesn\'t exist. Sorry...-->';
     return false;
-    die();
   }
 
   //echo '<pre>'; print_r($guild); echo '</pre>';
@@ -94,7 +93,7 @@ function wowpi_show_character($with = array(),$characterName=null,$realm=null,$r
   //$wowpi_guild = array('name' => $guild_data->name, 'members' => $guild_data->members, 'emblem' => $guild_data->emblem, 'icon' => $guild_data->icon, 'icon_color' => $guild_data->iconColor, 'border' => $guild_data->border, 'border_color' => $guild_data->borderColor, 'background' => $guild_data->backgroundColor);
 
   echo '<div class="wowpi_character_container '.strtolower($side).' '.strtolower($race).' '.str_replace(' ','_',strtolower($class)).'"';
-  echo (get_option('styling') == 'wowpi_faction' ? ' style="background-image: url(\''.$wowpi_plugin_url.'assets/images/theme/wowpi_'.strtolower($side).'.jpg\')"' : '');
+  echo (wowpi_widrick_get_option('styling') == 'wowpi_faction' ? ' style="background-image: url(\''.$wowpi_plugin_url.'assets/images/theme/wowpi_'.strtolower($side).'.jpg\')"' : '');
   echo '>';
 
   /*
@@ -267,7 +266,7 @@ function wowpi_show_pvp($characterName, $realm, $with_title = true)
 			//echo '<pre>';print_r($bracket['slug']);echo '</pre>';
 			$output .='<div class="pvp-bracket">';
 			$output .='<div class="bracket-name">'.$bracket['slug'].'</div>';
-			$output .='<div class="bracket-rating">'.$bracket['slug'].'</div>';
+			$output .='<div class="bracket-rating">'.$bracket['rating'].'</div>';
 			$output .='</div>';
 		}
 	}

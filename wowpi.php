@@ -72,3 +72,5 @@ include('includes/wowpi_widget_character.php');
 include('includes/wowpi_widget_realms.php');
 include('includes/wowpi_widgets.php');
 include('includes/wowpi_widrick_options.php');
+include('includes/wowpi_widrick_caching.php');
+

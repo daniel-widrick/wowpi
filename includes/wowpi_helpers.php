@@ -70,7 +70,7 @@ function wowpi_buildServiceUrl($dataType, $dataRequested) {
 }
 
 function wowpi_getRaces() {
-    $returned = get_option('wowpi_character_races');
+    $returned = wowpi_widrick_get_option('wowpi_character_races');
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
 
         $serviceUrl = 'https://' . wowpi_getRegion() . '.api.blizzard.com/wow/data/character/races?locale=' . wowpi_getLocale() . '&access_token=' . wowpi_getToken();
@@ -95,14 +95,14 @@ function wowpi_getRaces() {
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option('wowpi_character_races', $returned);
+        wowpi_widrick_update_option('wowpi_character_races', $returned);
     }
-    $returned = get_option('wowpi_character_races');
+    $returned = wowpi_widrick_get_option('wowpi_character_races');
     return $returned['data'];
 }
 
 function wowpi_getClasses() {
-    $returned = get_option('wowpi_character_classes');
+    $returned = wowpi_widrick_get_option('wowpi_character_classes');
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
         $serviceUrl = 'https://' . wowpi_getRegion() . '.api.blizzard.com/wow/data/character/classes?locale=' . wowpi_getLocale() . '&access_token=' . wowpi_getToken();
         $curl_response = wowpi_retrieve_data($serviceUrl);
@@ -125,15 +125,15 @@ function wowpi_getClasses() {
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option('wowpi_character_classes', $returned);
+        wowpi_widrick_update_option('wowpi_character_classes', $returned);
     }
-    $returned = get_option('wowpi_character_classes');
+    $returned = wowpi_widrick_get_option('wowpi_character_classes');
     return $returned['data'];
 }
 
 function wowpi_getArtifact($artifactId)
 {
-    $returned = get_option('wowpi_artifact_weapons_'.$artifactId);
+    $returned = wowpi_widrick_get_option('wowpi_artifact_weapons_'.$artifactId);
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
         $serviceUrl = 'https://' . wowpi_getRegion() . '.api.blizzard.com/wow/item/'.$artifactId.'?locale=' . wowpi_getLocale() . '&access_token=' . wowpi_getToken();
         $curl_response = wowpi_retrieve_data($serviceUrl);
@@ -161,15 +161,15 @@ function wowpi_getArtifact($artifactId)
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option('wowpi_artifact_weapons_'.$artifactId, $returned);
+        wowpi_widrick_update_option('wowpi_artifact_weapons_'.$artifactId, $returned);
     }
-    $returned = get_option('wowpi_artifact_weapons_'.$artifactId);
+    $returned = wowpi_widrick_get_option('wowpi_artifact_weapons_'.$artifactId);
     return $returned['data'];
 }
 
 function wowpi_getSpell($spellId)
 {
-    $returned = get_option('wowpi_spells_'.$spellId);
+    $returned = wowpi_widrick_get_option('wowpi_spells_'.$spellId);
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
         $serviceUrl = 'https://' . wowpi_getRegion() . '.api.blizzard.com/wow/spell/'.$spellId.'?locale=' . wowpi_getLocale() . '&access_token=' . wowpi_getToken();
         $curl_response = wowpi_retrieve_data($serviceUrl);
@@ -191,14 +191,14 @@ function wowpi_getSpell($spellId)
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option('wowpi_spells_'.$spellId, $returned);
+        wowpi_widrick_update_option('wowpi_spells_'.$spellId, $returned);
     }
-    $returned = get_option('wowpi_spells_'.$spellId);
+    $returned = wowpi_widrick_get_option('wowpi_spells_'.$spellId);
     return $returned['data'];
 }
 
 function wowpi_getRealms($region = null, $locale = null) {
-    $returned = get_option('wowpi_realms_data');
+    $returned = wowpi_widrick_get_option('wowpi_realms_data');
     $region = wowpi_getRegion($region);
     $locale = wowpi_getLocale($locale);
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
@@ -230,14 +230,14 @@ function wowpi_getRealms($region = null, $locale = null) {
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option('wowpi_realms_data', $returned);
+        wowpi_widrick_update_option('wowpi_realms_data', $returned);
     }
-    $returned = get_option('wowpi_realms_data');
+    $returned = wowpi_widrick_get_option('wowpi_realms_data');
     return $returned['data'][$region];
 }
 
 function wowpi_getCharacterAchievements() {
-    $returned = get_option('wowpi_character_achievements');
+    $returned = wowpi_widrick_get_option('wowpi_character_achievements');
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
         $serviceUrl = 'https://' . wowpi_getRegion() . '.api.blizzard.com/wow/data/character/achievements?locale=' . wowpi_getLocale() . '&access_token=' . wowpi_getToken();
         $curl_response = wowpi_retrieve_data($serviceUrl);
@@ -293,14 +293,14 @@ function wowpi_getCharacterAchievements() {
             $returned['last_update'] = current_time('timestamp');
         }
 
-        update_option('wowpi_character_achievements', $returned);
+        wowpi_widrick_update_option('wowpi_character_achievements', $returned);
     }
-    $returned = get_option('wowpi_character_achievements');
+    $returned = wowpi_widrick_get_option('wowpi_character_achievements');
     return $returned['data'];
 }
 
 function wowpi_getGuildAchievements() {
-    $returned = get_option('wowpi_guild_achievements');
+    $returned = wowpi_widrick_get_option('wowpi_guild_achievements');
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
         $serviceUrl = 'https://' . wowpi_getRegion() . '.api.blizzard.com/wow/data/guild/achievements?locale=' . wowpi_getLocale() . '&access_token=' . wowpi_getToken();
         $curl_response = wowpi_retrieve_data($serviceUrl);
@@ -372,9 +372,9 @@ function wowpi_getGuildAchievements() {
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option('wowpi_guild_achievements', $returned);
+        wowpi_widrick_update_option('wowpi_guild_achievements', $returned);
     }
-    $returned = get_option('wowpi_guild_achievements');
+    $returned = wowpi_widrick_get_option('wowpi_guild_achievements');
     return $returned['data'];
 }
 
@@ -393,7 +393,7 @@ function wowpi_getCharacterData($characterName = null, $realmName = null, $regio
 
     $characterOptionName = 'wowpi_character_data_'.$realmSlug.'_'.urlencode(strtolower($characterName));
 
-    $returned = get_option($characterOptionName);
+    $returned = wowpi_widrick_get_option($characterOptionName);
 
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+$characterCaching)<current_time('timestamp'))) {
 
@@ -420,10 +420,9 @@ function wowpi_getCharacterData($characterName = null, $realmName = null, $regio
         );
         $fieldsStr = urlencode(implode(',',$fieldsArr));
 
-        $serviceUrl = 'https://' . $region . '.api.blizzard.com/wow/character/'.$realmSlug.'/'.$characterName.'?fields='.$fieldsStr.'&locale=' . $locale . '&access_token=' . wowpi_getToken();
+        $serviceUrl = 'https://' . $region . '.api.blizzard.com/wow/character/'.$realmSlug.'/'.urlencode($characterName).'?fields='.$fieldsStr.'&locale=' . $locale . '&access_token=' . wowpi_getToken();
         $curl_response = wowpi_retrieve_data($serviceUrl);
         $decoded = json_decode($curl_response);
-        
         if(isset($decoded->lastModified) && $decoded->lastModified <= $returned['last_update'])
         {
             return $returned['data'];
@@ -456,9 +455,9 @@ function wowpi_getCharacterData($characterName = null, $realmName = null, $regio
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option($characterOptionName, $returned);
+        wowpi_widrick_update_option($characterOptionName, $returned);
     }
-    $returned = get_option($characterOptionName);
+    $returned = wowpi_widrick_get_option($characterOptionName);
     return $returned['data'];
 
 }
@@ -486,7 +485,7 @@ function wowpi_getGuildData($guildName = null, $realmName = null, $region = null
 
     $guildOptionName = 'wowpi_guild_data_' . $realmSlug . '_' . urlencode(strtolower($guildName));
 
-    $returned = get_option($guildOptionName);
+    $returned = wowpi_widrick_get_option($guildOptionName);
 
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update']) + $guildCaching) < current_time('timestamp'))) {
         // get ALL the fields
@@ -539,9 +538,9 @@ function wowpi_getGuildData($guildName = null, $realmName = null, $region = null
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option($guildOptionName, $returned);
+        wowpi_widrick_update_option($guildOptionName, $returned);
     }
-    $returned = get_option($guildOptionName);
+    $returned = wowpi_widrick_get_option($guildOptionName);
     return $returned['data'];
 }
 
@@ -919,7 +918,7 @@ function wowpi_parseCharacterDataProgression($decoded) {
 }
 
 function wowpi_setProgression($decodedProgression = null) {
-    $returned = get_option('wowpi_progression_data');
+    $returned = wowpi_widrick_get_option('wowpi_progression_data');
     if(($returned==false) || (isset($returned['last_update']) && (intval($returned['last_update'])+(62*24*60*60))<current_time('timestamp'))) {
         if(!isset($decodedProgression) || empty($decodedProgression)) {
             return $returned;
@@ -950,12 +949,12 @@ function wowpi_setProgression($decodedProgression = null) {
         if (isset($returned['data']) && !empty($returned['data'])) {
             $returned['last_update'] = current_time('timestamp');
         }
-        update_option('wowpi_progression_data', $returned);
+        wowpi_widrick_update_option('wowpi_progression_data', $returned);
     }
 }
 
 function wowpi_getProgression() {
-    return get_option('wowpi_progression_data');
+    return wowpi_widrick_get_option('wowpi_progression_data');
 }
 
 function wowpi_parseCharacterDataPvp($decoded) {
