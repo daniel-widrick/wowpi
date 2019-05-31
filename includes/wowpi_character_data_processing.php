@@ -2,7 +2,7 @@
 function wowpi_get_character($field = null, $character_name = null, $realm = null, $region = null, $locale = null)
 {
   global $wowpi_options;
-  $characters = wowpi_widrick_get_option('wowpi_characters');
+  $characters = get_option('wowpi_characters');
   $caching = $wowpi_options['character_caching'];
   
   
@@ -50,25 +50,21 @@ function wowpi_get_character($field = null, $character_name = null, $realm = nul
   else
   {
     wowpi_call_api_character($characters, $character_name, $realm, $region, $locale);
-    $characters = wowpi_widrick_get_option('wowpi_characters');
+    $characters = get_option('wowpi_characters');
     $character_data = $characters[$realm][$character_name]['data'];
   }
 
-  return (array) $character_data[$field];
+  $character_data = (array) $character_data;
+  if(array_key_exists($field,$character_data)) {
+      return $character_data[$field];
+  }
+  else {
+      return false;
+  }
 }
 
 function wowpi_call_api_character($characters, $character_name, $realm = null, $region = null, $locale = null)
 {
-    global $wowpi_options;
-	$characterHash = $region . '-' . $realm . '-' . $character_name;
-	$char_cache = wowpi_widrick_character_cache_get($characterHash);
-	if($char_cache !== false)
-	{
-		$characters[$realm][$character_name] = $char_cache;
-		wowpi_widrick_update_option('wowpi_characters', $characters);
-		return $char_cache;
-	}
-	
   
   // get ALL the fields
   $fields_arr = array(
@@ -115,8 +111,7 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
                          'gender' => $decoded->gender,
                          'level' => $decoded->level,
                          'achievement_points' => $decoded->achievementPoints,
-                         'faction' => $decoded->faction,
-						 'pvp' => $decoded->pvp)),
+                         'faction' => $decoded->faction)),
     'last_update'=>$last_update
   );
   
@@ -132,7 +127,7 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
     $image_code = wowpi_get_character_image($region,$character_thumb);
     $character_data['data']['profile']['thumbnail'] = $image_code;
   }
-  
+
   //character guild
   if(isset($decoded->guild))
   {
@@ -190,9 +185,7 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
           $the_talents = array();
           foreach($spec->talents as $talent)
           {
-              if(isset($talent)) {
-                  $the_talents[$talent->tier] = array('id' => $talent->spell->id, 'name' => $talent->spell->name, 'icon' => $talent->spell->icon, 'description' => $talent->spell->description);
-              }
+            $the_talents[$talent->tier] = array('id'=>$talent->spell->id, 'name'=>$talent->spell->name, 'icon'=>$talent->spell->icon,'description'=>$talent->spell->description);
           }
           ksort($the_talents);
 
@@ -213,7 +206,7 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
         }
       }
     }
-    $character_data['data']['talents'] = sort_array_by($character_data['data']['talents'],'selected', $direction = 'DESC');
+    $character_data['data']['talents'] = sortArrayBy($character_data['data']['talents'],'selected', $direction = 'DESC');
     $character_data['data']['profile']['spec_id'] = $current_spec;
     //echo '<pre>';print_r($character_data['data']['talents']);echo '</pre>';
     
@@ -259,13 +252,14 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
         $achievements_arr[] = array('id'=>$id,'completed'=>$timestamp);
       }
     }
-    $achievements_arr = sort_array_by($achievements_arr,'completed', $direction = 'DESC');
+    $achievements_arr = sortArrayBy($achievements_arr,'completed', $direction = 'DESC');
     //$achievements_arr = array_slice($achievements_arr, 0, 20);
     
     
     //echo '<pre>';print_r($achievements_arr);echo '</pre>';
     
-    $all_achievements = wowpi_general_data('achievements');
+    $all_achievements = wowpi_getCharacterAchievements();
+    //var_dump($all_achievements);
     
     $character_achievements = array();
     $i = 1;
@@ -274,11 +268,11 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
       if($i==21) break;
       if(array_key_exists($achievement['id'],$all_achievements['achievements']))
       {
-        $title = $all_achievements['achievements'][$achievement['id']]['title'];
-        $description = $all_achievements['achievements'][$achievement['id']]['description'];
-        $points = $all_achievements['achievements'][$achievement['id']]['points'];
-        $icon = $all_achievements['achievements'][$achievement['id']]['icon'];
-        $character_achievements[$achievement['id']] = array('id'=>$achievement['id'],'title'=>$title,'description'=>$description,'points'=>$points,'icon'=>$icon,'completed'=>$achievement['completed']);
+        $title = $all_achievements['achievements'][$achievement['id']]['t'];
+        //$description = $all_achievements['achievements'][$achievement['id']]['d'];
+        $points = $all_achievements['achievements'][$achievement['id']]['p'];
+        $icon = $all_achievements['achievements'][$achievement['id']]['i'];
+        $character_achievements[$achievement['id']] = array('id'=>$achievement['id'],'title'=>$title,'points'=>$points,'icon'=>$icon,'completed'=>$achievement['completed']);
         $i++;
       }
     }
@@ -331,7 +325,5 @@ function wowpi_call_api_character($characters, $character_name, $realm = null, $
   //unset($decoded->petSlots);
   
   $characters[$realm][$character_name] = $character_data;
-  wowpi_widrick_update_option('wowpi_characters', $characters);
-	wowpi_widrick_character_cache_save($characterHash,$character_data);
-
+  update_option('wowpi_characters', $characters);
 }

@@ -1,4 +1,15 @@
 <?php
+// Add settings link on plugin page
+function wowpi_settings_link($links) {
+    $settings_link = '<a href="options-general.php?page=wowpi">Settings</a>';
+    array_unshift($links, $settings_link);
+    return $links;
+}
+
+$plugin = plugin_basename(__FILE__);
+add_filter("plugin_action_links_$plugin", 'wowpi_settings_link' );
+
+
 
 // Incepem prin a adauga un link in meniul de admin
 add_action('admin_menu','wowpi_admin_add_page');
@@ -32,8 +43,10 @@ function wowpi_admin_init()
 	// vom pastra toate valorile intr-un array
 	register_setting('wowpi_options','wowpi_options','wowpi_options_validate');
 	add_settings_section('wowpi_main','Main Settings','wowpi_section_text','wowpi');
-	add_settings_field('wowpi_api_key','WoW API Key','wowpi_api_key','wowpi','wowpi_main');
-	add_settings_field('wowpi_secret_key','WoW Secret Key','wowpi_secret_key','wowpi','wowpi_main');
+	add_settings_field('wowpi_client_id','WoW Client ID','wowpi_client_id','wowpi','wowpi_main');
+	add_settings_field('wowpi_client_secret','WoW Client Secret','wowpi_client_secret','wowpi','wowpi_main');
+	//add_settings_field('wowpi_api_key','WoW API Key','wowpi_api_key','wowpi','wowpi_main');
+	//add_settings_field('wowpi_secret_key','WoW Secret Key','wowpi_secret_key','wowpi','wowpi_main');
 		
 	add_settings_section('character_api','Character Section','wowpi_character_section_text','wowpi');
 	add_settings_field('wowpi_character_name','Character Name','wowpi_character_name','wowpi','character_api');
@@ -79,7 +92,21 @@ function wowpi_styling_section_text()
 {
 	echo '<p>Of course we also need some styling... Or not... It\'s your choice.</p>';
 }
+
+// the client id input form
+function wowpi_client_id() {
+	global $wowpi_options;
+	echo '<input id="wowpi_client_id" name="wowpi_options[client_id]" size="40" type="text" value="'.(isset($wowpi_options['client_id']) ? $wowpi_options['client_id'] : '').'" />';
+}
+
+// the secret key input form
+function wowpi_client_secret() {
+	global $wowpi_options;
+	echo '<input id="wowpi_client_secret" name="wowpi_options[client_secret]" size="40" type="text" value="'.(isset($wowpi_options['client_secret']) ? $wowpi_options['client_secret'] : '').'" />';
+}
+
 // the api key input form
+/*
 function wowpi_api_key() {
 	global $wowpi_options;
 	echo '<input id="wowpi_api_key" name="wowpi_options[api_key]" size="40" type="text" value="'.$wowpi_options['api_key'].'" />';
@@ -89,7 +116,7 @@ function wowpi_api_key() {
 function wowpi_secret_key() {
 	global $wowpi_options;
 	echo '<input id="wowpi_secret_key" name="wowpi_options[secret_key]" size="40" type="text" value="'.$wowpi_options['secret_key'].'" />';
-}
+}*/
 
 // the region input form
 function wowpi_region(){
@@ -174,18 +201,21 @@ function wowpi_options_validate($input)
 	global $wowpi_options;
 	
 	// api key
-	$wowpi_options['api_key'] = trim($input['api_key']);
-	if(!preg_match('/^[a-z0-9]{34}$/i', $wowpi_options['api_key']))
-	{
-		$wowpi_options['api_key'] = '';
-	}
+	//$wowpi_options['api_key'] = trim($input['api_key']);
+	//if(!preg_match('/^[a-z0-9]{32}$/i', $wowpi_options['api_key']))
+	//{
+	//	$wowpi_options['api_key'] = '';
+	//}
 	
 	// secret key
-	$wowpi_options['secret_key'] = trim($input['secret_key']);
-	if(!preg_match('/^[a-z0-9]{32}$/i', $wowpi_options['secret_key']))
-	{
-		$wowpi_options['secret_key'] = '';
-	}
+	//$wowpi_options['secret_key'] = trim($input['secret_key']);
+	//if(!preg_match('/^[a-z0-9]{32}$/i', $wowpi_options['secret_key']))
+	//{
+	//	$wowpi_options['secret_key'] = '';
+	//}
+
+	$wowpi_options['client_id'] = trim($input['client_id']);
+	$wowpi_options['client_secret'] = trim($input['client_secret']);
 	
 	// caching
 	$wowpi_options['caching'] = trim($input['caching']);
@@ -264,17 +294,34 @@ function wowpi_options_validate($input)
 	$tooltips_options = array('http://www.wowhead.com/','http://www.wowdb.com/','0');
 	$wowpi_new = $input['tooltips'];
 	$wowpi_options['tooltips'] = in_array($wowpi_new,$tooltips_options) ? $wowpi_new : '0';
-	
-	delete_option('wowpi_achievements');
-	delete_option('wowpi_characters');
-	delete_option('wowpi_guilds');
-	delete_option('wowpi_guilds_progress');
-	delete_option('wowpi_races');
-	delete_option('wowpi_realms');
-	delete_option('wowpi_classes');
-	delete_option('wowpi_artifact_weapons');
-	delete_option('wowpi_spells');
-	delete_option('wowpi_items');	
+
+	foreach ( wp_load_alloptions() as $option => $value ) {
+        if ( strpos( $option, 'wowpi_' ) === 0 && $option !== 'wowpi_options' && $option !== 'wowpi_version' ) {
+            delete_option( $option );
+        }
+    }
+
+    global $wowpi_plugin_dir;
+    $imageDir = $wowpi_plugin_dir.'assets/images/wow/';
+    if(file_exists($imageDir) && wp_is_writable($wowpi_plugin_dir.'assets/images/')) {
+        removeDirectory($imageDir);
+    }
+
+    $uploadDir = wp_upload_dir();
+    $wowpiUploadDir = $uploadDir['basedir'].'/wowpi/';
+    if(file_exists($wowpiUploadDir) && wp_is_writable($uploadDir['basedir'].'/')) {
+        removeDirectory($wowpiUploadDir);
+    }
+
+    // first saves
+    wowpi_getRaces();
+    wowpi_getClasses();
+    wowpi_getRealms();
+    wowpi_getCharacterAchievements();
+    wowpi_getGuildAchievements();
+    wowpi_getCharacterData();
+    wowpi_getGuildData();
+
 	return $wowpi_options;
 }
 

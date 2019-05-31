@@ -16,7 +16,7 @@
 .wowpi_character_container .character_title span {font-weight:bold;line-height:18px;}
 .wowpi_character_container .achievement_feed {text-align: left;}
 .wowpi_character_container .achievement_feed ul, .wowpi_character_data td ul {list-style: none none inside;}
-.wowpi_character_container .achievement_feed ul li, .wowpi_character_data td.achievement_feed li {padding-left: 30px; background-position: 0 3px; background-repeat: no-repeat;}
+.wowpi_character_container .achievement_feed ul li, .wowpi_character_data td.achievement_feed li {padding-left: 30px; background-position: top left; background-repeat: no-repeat; line-height: 18px; margin-bottom: 1px;}
 .wowpi_character_data td.achievement_feed li {text-align:left;}
 .wowpi_character_container .achievement_feed ul li .shield {height: 12px; width: auto;}
 .wowpi_character_container .kills .total, .wowpi_guild_achievement_feed .total, .wowpi_character_container .achievements .total, .wowpi_character_container .gear .itemlvl_total {font-weight:bold; font-size: 24px; line-height: 32px; text-align:center;}

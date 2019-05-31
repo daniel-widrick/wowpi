@@ -3,7 +3,7 @@
 Plugin Name:    WoWpi - the World of Warcraft API Armory plugin
 Plugin URI:     https://wordpress.org/plugins/wowpi/
 Description:    WoWpi is an World of Warcraft API Armory plugin used to get data from Battle.net API
-Version:        2.3.8
+Version:        2.5.2
 Author:         avenirer - Adrian Voicu
 Text Domain:    wowpi
 Domain Path:    /languages
@@ -19,7 +19,7 @@ if (!defined('WOWPI_VERSION_KEY'))
     define('WOWPI_VERSION_KEY', 'wowpi_version');
 
 if (!defined('WOWPI_VERSION_NUM'))
-    define('WOWPI_VERSION_NUM', '2.3.8');
+    define('WOWPI_VERSION_NUM', '2.5.2');
 
 add_option(WOWPI_VERSION_KEY, WOWPI_VERSION_NUM);
 
@@ -54,12 +54,10 @@ $wowpi_character_showable = array(
 * includes
 ********************************************/
 
-include('includes/wowpi_widrick_options.php');
-include('includes/wowpi_widrick_caching.php');
 include('includes/scripts.php'); // This controls all JS / CSS
+include('includes/wowpi_helpers.php');
 include('includes/wowpi_data_processing.php'); // This controls all saving of data
 include('includes/wowpi_item_data_processing.php');
-include('includes/wowpi_spell_data_processing.php');
 include('includes/wowpi_realm_data_processing.php');
 include('includes/wowpi_image_processing.php');
 include('includes/wowpi_character_data_processing.php');

@@ -42,20 +42,21 @@ class wowpi_widget_realms extends WP_Widget {
     }
 		else {$view = 'Realm';}
     ?>
-  <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Widget title:' ); ?></label> 
-      <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+    <p>
+  		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Widget title:' ); ?></label> 
+      	<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
     </p>
 
-
-    <label for="<?php echo $this->get_field_id( 'realm' ); ?>"><?php _e( 'Realm:' ); ?></label> 
-    <input class="widefat" id="<?php echo $this->get_field_id( 'realm' ); ?>" name="<?php echo $this->get_field_name( 'realm' ); ?>" type="text" value="<?php echo esc_attr( $realm ); ?>" />
+	<p>
+        <label for="<?php echo $this->get_field_id( 'realm' ); ?>"><?php _e( 'Realm:' ); ?></label> 
+        <input class="widefat" id="<?php echo $this->get_field_id( 'realm' ); ?>" name="<?php echo $this->get_field_name( 'realm' ); ?>" type="text" value="<?php echo esc_attr( $realm ); ?>" />
     </p>
-		<p>
-			<label for="<?php echo $this->get_field_id('view');?>"><?php _e('What do you want to show:');?></label>
-			<select class="widefat" id="<?php echo $this->get_field_name('view');?>" name="<?php echo $this->get_field_name( 'view' ); ?>">
-				<option value="realm"<?php if($view=='Realm') echo ' selected';?>>Realm</option>
-				<option value="battlegroup"<?php if($view=='Battlegroup') echo ' selected';?>>Battlegroup</option>				
-			</select>
+    <p>
+    	<label for="<?php echo $this->get_field_id('view');?>"><?php _e('What do you want to show:');?></label>
+    	<select class="widefat" id="<?php echo $this->get_field_name('view');?>" name="<?php echo $this->get_field_name( 'view' ); ?>">
+    		<option value="realm"<?php if($view=='Realm') echo ' selected';?>>Realm</option>
+    		<option value="battlegroup"<?php if($view=='Battlegroup') echo ' selected';?>>Battlegroup</option>				
+		</select>
     </p>
 <?php
   }

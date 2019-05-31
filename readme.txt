@@ -3,8 +3,8 @@ Contributors: avenirer
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6PDPV9L47HC86
 Tags: World of Warcraft, wow, armory
 Requires at least: 3.0.1
-Tested up to: 4.9.6
-Stable tag: 2.3.8
+Tested up to: 4.9.8
+Stable tag: 2.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,8 +42,8 @@ The WoWpi plugin allows you to get your character data from Battle.net API servi
 
 1. Upload the plugin files to the `/wp-content/plugins/wowpi/` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the `Plugins` screen in WordPress.
-3. Create an account on Battle.net API (https://dev.battle.net/member/register).
-4. After creating an account on the Battle.net API website, you must add your website on the Applications tab (https://dev.battle.net/apps/myapps). Once created, the app will provide with a Key and a Secret.
+3. Create an account on Battle.net API (https://develop.battle.net/).
+4. After creating an account on the Battle.net API website, you must add your website as a client (https://develop.battle.net/access/clients). Once created, the app will provide with a Client ID and a Client Secret.
 5. On your WordPress, you must go to "Settings" > "WoWpi Settings" screen, and fill those in, including the Region and Locale, Realm, and Character Name.
 
 = Use it inside themes as PHP function =
@@ -212,10 +212,18 @@ You can use the following shortcodes inside your posts (or templates...):
 I sure hope not, but this being my first plugin I can't guarantee for everything. Anyway, you can at any time write me at **avenir.ro@gmail.com** or use the forum to report any issues or ask for more things. Also, please, do tell me if the plugin needs something else added or if you have some styling proposals.
 
 == Changelog ==
-= 2.3.8 =
-Trying to cope with api changes coming with Battle of Azeroth
-= 2.3.7 =
-...
+= 2.5.2 =
+Added BfA dungeons and raids to progression
+= 2.5.1 =
+Fixing some api calls for guild progression
+= 2.5.0 =
+Trying to connect using oAuth2
+= 2.4.2 =
+The character image didn't show. Now it should.
+= 2.4.1 =
+Forgot what I did
+= 2.4 =
+Refactoring
 = 2.3.6 =
 Repaired the showing of allied races thumbs. Thank you @tectas for the fix. The problem was reported here: https://wordpress.org/support/topic/allied-races-image-error/
 = 2.3.6 =

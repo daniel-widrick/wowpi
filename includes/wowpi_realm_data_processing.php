@@ -2,7 +2,7 @@
 function wowpi_get_realms($region = null, $locale = null)
 {
   global $wowpi_options;
-  $realms = wowpi_widrick_get_option('wowpi_realms');
+  $realms = get_option('wowpi_realms');
   //echo '<pre>'; print_r($guilds); echo '</pre>';
   
   // get the caching time in seconds
@@ -32,8 +32,8 @@ function wowpi_call_api_realms($region = null, $locale = null)
   }
   
   //create the service url
-  $service_url = 'https://'.$region.'.api.blizzard.com/wow/realm/status?';
-  $service_url .= 'locale='.$locale.'&access_token='.$wowpi_options['api_key'];
+  $service_url = 'https://'.$region.'.api.blizzard.net/wow/realm/status?';
+  $service_url .= 'locale='.$locale.'&access_token='.wowpi_getToken();
   
   // the curl thingy
   $curl_response = wowpi_retrieve_data($service_url);
@@ -60,7 +60,7 @@ function wowpi_call_api_realms($region = null, $locale = null)
         }
 
         //echo '<pre>';print_r($the_realms);echo '</pre>';
-        wowpi_widrick_update_option('wowpi_realms', $the_realms);
+        update_option('wowpi_realms', $the_realms);
         return $the_realms;
     }
     return false;

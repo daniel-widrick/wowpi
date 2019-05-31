@@ -5,7 +5,7 @@ function wowpi_show_guild($with = null,$guild_name = null, $realm = null)
   global $wowpi_plugin_dir;
   global $wowpi_plugin_url;
   global $wowpi_options;
-  
+
   $guild = wowpi_get_guild(null,$guild_name,$realm);
   if($guild===false)
   {
@@ -13,18 +13,18 @@ function wowpi_show_guild($with = null,$guild_name = null, $realm = null)
     return false;
     die();
   }
-  
+
   //echo '<pre>'; print_r($guild); echo '</pre>';
-  
+
   $guild_members = wowpi_get_guild('members',$guild_name,$realm);
-  
+
   $total_members = sizeof($guild_members);
-  
+
   echo '<div class="wowpi_guild_container">';
   echo '<div class="guild_tabard side_'.strtolower($guild['side']).'">';
   $tabard = wowpi_get_guild_tabard($guild_name,$realm);
   echo '<img src="'.$tabard.'" class="crest" />';
-  
+
   echo '</div>';
   echo '<div class="guild_name">';
   echo $guild['name'];
@@ -33,10 +33,7 @@ function wowpi_show_guild($with = null,$guild_name = null, $realm = null)
   echo ucfirst((($guild['side']=='1') ? 'horde' : 'alliance')).' Guild, '.$guild['realm'].', '.$total_members.' members';
   echo '</div>';
   echo '</div>';
-  ?>
-  <?php
   echo '</div>';
-  
   if(isset($with) && !empty($with))
   {
     foreach($with as $content)
@@ -55,54 +52,51 @@ function displayCurrentSpecTitle($character_name = null, $realm = null)
 		$character_talents = wowpi_get_character('talents',$character_name,$realm);
 		return $character_talents[0]['name'];
 	}
-	
-function wowpi_show_character($with = array(),$character_name=null,$realm=null)
+
+function wowpi_show_character($with = array(),$characterName=null,$realm=null,$region=null,$locale=null)
 {
+    $character = wowpi_getCharacterData($characterName,$realm,$region,$locale);
+    if(!isset($character) || empty($character)) {
+        echo 'Could not retrieve data for character '.$characterName;
+        return ;
+    }
+
+    $races = wowpi_getRaces();
+    $classes = wowpi_getClasses();
+
+
+
   global $wowpi_options;
   global $wowpi_plugin_dir;
   global $wowpi_plugin_url;
-  $races = wowpi_general_data('races');
-  $classes = wowpi_general_data('classes');
-  //echo '<pre>';print_r($classes);echo '</pre>';
-  $guild = wowpi_get_character('guild',$character_name,$realm);
-  
-  
-  $character_data = wowpi_get_character(null, $character_name,$realm);
-  //print_r($character_data);
-  //$character_stats = wowpi_get_character('stats');
-  $character_titles = wowpi_get_character('titles',$character_name,$realm);
-  
-  if(empty($character_data) || (array_key_exists('status',$character_data) && $character_data['status']=='nok'))
+
+  $guild = $character['guild'];
+
+  $character_name = $character['profile']['name'];
+  if(isset($character['titles']) && isset($character['titles']['currentTitle']) && $character['titles']['currentTitle'] != 0)
   {
-    echo $character_data['reason'];
-    return true;
-    exit;
+    $main_title = $character['titles']['titles'][$character['titles']['currentTitle']];
   }
-  $character_name = $character_data['name'];
-  $character = $character_name;
-  if(isset($character_data['title']['name']))
-  {
-    $main_title = $character_data['title']['name'];
-  }
-  $spec_id = $character_data['spec_id'];
-  //$wowpi_main_title = $character_titles[$character_titles['main']]['name'];
-  $realm = $character_data['realm'];
-  $battlegroup = $character_data['battlegroup'];  
-  $class = $classes[$character_data['class']]['name'];
-  $race = $races[$character_data['race']]['name'];
+
+  $realm = $character['profile']['realm'];
+  $battlegroup = $character['profile']['battlegroup'];
+  //var_dump($classes);
+  //var_dump($character['profile']);
+  $class = $classes[$character['profile']['class']]['name'];
+  $race = $races[$character['profile']['race']]['name'];
   $specialization = displayCurrentSpecTitle($character_name,$realm);
-  $side = $races[$character_data['race']]['side'];
-  $gender = $character_data['gender'];
-  $level = $character_data['level'];
-  $thumbnail = $character_data['thumbnail'];
-  $calc_class = $character_data['calc_class'];
-  $faction = $character_data['faction'];
+  $side = $races[$character['profile']['race']]['side'];
+  $gender = $character['profile']['gender'];
+  $level = $character['profile']['level'];
+  $thumbnail = $character['profile']['thumbnail'];
+  $calc_class = $character['profile']['calcClass'];
+  $faction = $character['profile']['faction'];
   //$wowpi_guild = array('name' => $guild_data->name, 'members' => $guild_data->members, 'emblem' => $guild_data->emblem, 'icon' => $guild_data->icon, 'icon_color' => $guild_data->iconColor, 'border' => $guild_data->border, 'border_color' => $guild_data->borderColor, 'background' => $guild_data->backgroundColor);
-  
+
   echo '<div class="wowpi_character_container '.strtolower($side).' '.strtolower($race).' '.str_replace(' ','_',strtolower($class)).'"';
-  echo ($wowpi_options['styling'] == 'wowpi_faction' ? ' style="background-image: url(\''.$wowpi_plugin_url.'assets/images/theme/wowpi_'.strtolower($side).'.jpg\')"' : '');
+  echo (get_option('styling') == 'wowpi_faction' ? ' style="background-image: url(\''.$wowpi_plugin_url.'assets/images/theme/wowpi_'.strtolower($side).'.jpg\')"' : '');
   echo '>';
-  
+
   /*
   $class_image = 'assets/images/symbols/class-'.str_replace(' ','',strtolower($class)).'.png';
   if(file_exists($wowpi_plugin_dir.$class_image))
@@ -113,30 +107,25 @@ function wowpi_show_character($with = array(),$character_name=null,$realm=null)
   ?>
   <div class="module character">
     <div class="character_name">
-      <?php    if(strlen($thumbnail)>0)
+		<?php
+		if(strlen($thumbnail)>0)
 		{
-		  /*$upload_dir = wp_upload_dir();
-		  $image = $upload_dir['basedir'].'/wowpi/character_avatar_'.$thumbnail.'.jpg';
-		  if(file_exists($image))
-		  {
-			echo '<img src="'.$upload_dir['baseurl'].'/wowpi/character_avatar_'.$thumbnail.'.jpg'.'" class="character_image" />';
-			}*/
-		  $upload_dir = wp_upload_dir();
-		  $image = $upload_dir['basedir'].'/wowpi/character_inset_'.$thumbnail.'.jpg';
-		  if(file_exists($image))
-		  {
-			echo '<a href="'.$upload_dir['baseurl'].'/wowpi/character_profile_'.$thumbnail.'.jpg'.'"><img src="'.$upload_dir['baseurl'].'/wowpi/character_inset_'.$thumbnail.'.jpg'.'" class="character_image" /></a>';
-		  }
+			$file_name = wowpi_get_character_image($region, $thumbnail);
+			$upload_dir = wp_upload_dir();
+			$image = $upload_dir['basedir'].'/wowpi/character_inset_'.$file_name.'.jpg';
+			if(file_exists($image)) {
+				echo '<a href="'.$upload_dir['baseurl'].'/wowpi/character_profile_'.$file_name.'.jpg"><img src="'.$upload_dir['baseurl'].'/wowpi/character_inset_'.$file_name.'.jpg'.'" class="character_image" /></a>';
+			}
 		}
-		
-		echo '<a href="https://worldofwarcraft.com/en-us/character/aerie-peak/'.$character.'">';
+		echo '<a href="https://worldofwarcraft.com/en-us/character/aerie-peak/'.$character_name.'">';
 		if(isset($main_title))
 		{
-			printf($main_title,$character);
+			printf($main_title,$character_name);
 		}
-  		else echo $character;?>
+  		else echo $character_name;
+		?>
 		</a>
-    </div>
+	</div>
     <div class="character_title"><?php printf( __('Level %1$s %2$s %3$s %4$s','wowpi'), $level, $race, $specialization, $class);?></div>
   </div>
   <?php
@@ -147,116 +136,122 @@ function wowpi_show_character($with = array(),$character_name=null,$realm=null)
       if($content!='nothing')
       {
         $function = 'wowpi_show_'.$content;
-        echo $function($character_name,$realm,true);
+        echo $function($character_name, $realm);
       }
     }
   }
   ?>
-   <!--<div class="realm"><?php echo $battlegroup.' / '.$realm;?></div>-->
 </div>
-<?php  
+<?php
 }
 
-function wowpi_show_achievement_points($character_name = null,$realm = null, $with_title = true)
+function wowpi_show_achievement_points($characterName, $realm, $with_title = true)
 {
-  $character_data = wowpi_get_character(null, $character_name,$realm);  
-  $achievement_points = $character_data['achievement_points'];
-  $all_achievements = wowpi_general_data('achievements');
-  
-  $output = '<div class="module achievements">';
-  $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('achievement_points').'</div>' : '';
-  $output .= '<div class="total">'.$achievement_points.'</div>';
-  $output .= '<div class="from">'.__('out of','wowpi').' '.$all_achievements['total_points'].'</div>';
-  return $output;
+    $character = wowpi_getCharacterData($characterName,$realm);
+    $achievementPoints = $character['profile']['achievementPoints'];
+    $allAchievements = wowpi_getCharacterAchievements();
+
+    $output = '<div class="module achievements">';
+    $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('achievement_points').'</div>' : '';
+    $output .= '<div class="total">'.$achievementPoints.'</div>';
+    $output .= '<div class="from">'.__('out of','wowpi').' '.$allAchievements['total_points'].'</div>';
+    return $output;
 }
 
-function wowpi_show_achievement_feed($character_name = null,$realm = null, $with_title = true,$limit = 10)
+function wowpi_show_achievement_feed($characterName, $realm, $with_title = true, $limit = 10)
 {
-  global $wowpi_plugin_url;
-  $character_achievements = wowpi_get_character('achievements', $character_name, $realm);
-  
-  $output = '';
-  if(!empty($character_achievements))
-  {
-    $output .= '<div class="module achievement_feed">';
-    $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('achievement_feed').'</div>' : '';
-    $output .= '<ul>';
-    foreach($character_achievements as $achievement)
-    {
-      //echo '<pre>';print_r($achievement);echo '</pre>';
-      if($limit == 0)
-      {
-        break;
-      }
-      $output .= '<li style="background-image: url(\''.wowpi_retrieve_image($achievement['icon'], 'icon', 18).'\');"> '.date('d.m',$achievement['completed']).' - '.wowpi_get_tooltip($achievement['id'],'achievement','<strong>'.$achievement['title'].':</strong>').' '.$achievement['description'].' <span class="points">'.$achievement['points'].'</span></li>';
-      $limit--;
+    $character = wowpi_getCharacterData($characterName,$realm);
+    $allAchievements = wowpi_getCharacterAchievements();
+
+    $characterAchievements = $character['achievements'];
+
+    $output = '';
+    if(!empty($characterAchievements)) {
+        $output .= '<div class="module achievement_feed">';
+        $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('achievement_feed').'</div>' : '';
+        $output .= '<ul>';
+
+        foreach($characterAchievements as $achievement) {
+            //echo '<pre>';print_r($achievement);echo '</pre>';
+            if($limit == 0) {
+                break;
+            }
+
+            if(array_key_exists($achievement['id'], $allAchievements['achievements'])) {
+                $image = $allAchievements['achievements'][$achievement['id']]['i'] ? wowpi_retrieve_image($allAchievements['achievements'][$achievement['id']]['i'], 'icon', 18) : false;
+                $title = $allAchievements['achievements'][$achievement['id']]['t'] ? $allAchievements['achievements'][$achievement['id']]['t'] : false;
+                $points = $allAchievements['achievements'][$achievement['id']]['p'] ? $allAchievements['achievements'][$achievement['id']]['p'] : false;
+
+                if ($title && $points && $image) {
+                    $output .= '<li style="background-image: url(\'' . $image . '\');"> ' . date('d.m', $achievement['completed']) . ' - ' . wowpi_get_tooltip($achievement['id'], 'achievement', '<strong>' . $title . '</strong>') . ' <span class="points">' . $points . '</span></li>';
+                    $limit--;
+                }
+            }
+        }
+        $output .= '</ul>';
+        $output .= '</div>';
     }
-    $output .= '</ul>';
+
+    return $output;
+}
+
+function wowpi_show_kills($characterName, $realm, $with_title = true)
+{
+    $output = '<div class="module kills">';
+    $character = wowpi_getCharacterData($characterName,$realm);
+    $honorableKills = $character['profile']['honorableKills'];
+    $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('kills').'</div>' : '';
+    $output .= '<div class="total">'.$honorableKills.'</div>';
     $output .= '</div>';
-  }
-  return $output;
+
+    return $output;
 }
 
-function wowpi_show_kills($character_name = null,$realm = null, $with_title = true)
+function wowpi_show_professions($characterName, $realm, $with_title = true)
 {
-  $character_data = wowpi_get_character(null, $character_name,$realm);  
-  $honorable_kills = $character_data['honorable_kills'];
-  
-  $output = '<div class="module kills">';
-  $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('kills').'</div>' : '';
-  $output .= '<div class="total">'.$honorable_kills.'</div>';
-  $output .= '</div>';
-  
-  return $output;
-}
+    $character = wowpi_getCharacterData($characterName,$realm);
 
+    $primaryProfessions = $character['professions']['primary'];
+    $secondaryProfessions = $character['professions']['secondary'];
 
+    $output = '';
 
-function wowpi_show_professions($character_name = null,$realm = null, $with_title = true)
-{
-  $professions = wowpi_get_character('professions',$character_name,$realm);
-  $primary_professions = $professions['primary'];
-  $secondary_professions = $professions['secondary'];
-  
-  $output = '';
-  
-  if(!empty($primary_professions) || !empty($secondary_professions))
-  {
-    $output .= '<div class="module professions">';
-    if(!empty($primary_professions))
-    {
-      $output .= '<div class="primary">';
-      $output .= ($with_title==true) ? '<div class="title">'.__('Primary professions:','wowpi').'</div>' : '';
-      foreach($primary_professions as $profession)
-      {
-        $output .= '<div><img src="'.wowpi_retrieve_image($profession->icon, 'icon', 18).'" alt="'.$profession->name.'" /> '.$profession->name.'('.$profession->rank.')</div>';
-      }
-      $output .= '</div>';
+    if(!empty($primaryProfessions) || !empty($secondaryProfessions)) {
+        $output .= '<div class="module professions">';
+        if(!empty($primaryProfessions)) {
+            $output .= '<div class="primary">';
+            $output .= ($with_title==true) ? '<div class="title">'.__('Primary professions:','wowpi').'</div>' : '';
+            foreach($primaryProfessions as $profession) {
+                $output .= '<img src="'.wowpi_retrieve_image($profession['icon'], 'icon', 18).'" alt="'.$profession['name'].'" /> '.$profession['name'].'('.$profession['rank'].' out of '.$profession['maxRank'].') ';
+            }
+            $output .= '</div>';
+        }
+
+        if(!empty($secondaryProfessions)) {
+            $output .= '<div class="secondary">';
+            $output .= ($with_title==true) ? '<div class="title">'.__('Secondary professions:','wowpi').'</div>' : '';
+            foreach($secondaryProfessions as $profession) {
+                $output .= '<img src="'.wowpi_retrieve_image($profession['icon'], 'icon', 18).'" alt="'.$profession['name'].'" /> '.$profession['name'].'('.$profession['rank'].' out of '.$profession['maxRank'].') ';
+            }
+            $output .= '</div>';
+        }
+        $output .= '</div>';
     }
-    if(!empty($secondary_professions))
-    {
-      $output .= '<div class="secondary">';
-      $output .= ($with_title==true) ? '<div class="title">'.__('Secondary professions:','wowpi').'</div>' : '';
-      foreach($secondary_professions as $profession)
-      {
-        $output .= '<div><img src="'.wowpi_retrieve_image($profession->icon, 'icon', 18).'" alt="'.$profession->name.'" /> '.$profession->name.'('.$profession->rank.')</div>';
-      }
-      $output .= '</div>';
-    }
-    $output .= '</div>';
-  }
-  return $output;
+    return $output;
 }
 
-function wowpi_show_pvp($character_name = null,$realm = null, $with_title = true)
+function wowpi_show_pvp($characterName, $realm, $with_title = true)
 {
-	$pvp = wowpi_get_character('pvp',$character_name, $realm);
-	$character_data = wowpi_get_character(null, $character_name,$realm); 
-	$character_data['data']['pvp']['brackets'] = array(
-      '2v2' => $pvp['brackets']->ARENA_BRACKET_2v2,
-      '3v3' => $pvp['brackets']->ARENA_BRACKET_3v3,
-      'RBG' => $pvp['brackets']->ARENA_BRACKET_RBG
+	$character = wowpi_getCharacterData($characterName,$realm);
+	
+	$pvp = $character['pvp'];
+	$character['pvp'] = array(
+      '2v2' => $pvp['ARENA_BRACKET_2v2'],
+      '3v3' => $pvp['ARENA_BRACKET_3v3'],
+      'RBG' => $pvp['ARENA_BRACKET_RBG']
 	);
+	
+	//echo '<pre>';print_r($pvp['ARENA_BRACKET_2v2']['slug']); echo'</pre>';
 	
 	//if (!empty($pvp['brackets']->ARENA_BRACKET_2v2->rating))
 	//{
@@ -265,14 +260,14 @@ function wowpi_show_pvp($character_name = null,$realm = null, $with_title = true
 	$output .='<div class="module pvp">';
 	$output .='<div class="title">Season PvP Ratings:</div>';
 	
-	foreach($character_data['data']['pvp']['brackets'] as $bracket)
+	foreach($character['pvp'] as $bracket)
 	{
-		if (!empty($bracket->rating))
+		if (!empty($bracket['rating']))
 		{
-			//echo '<pre>';print_r($bracket->slug);echo '</pre>';
+			//echo '<pre>';print_r($bracket['slug']);echo '</pre>';
 			$output .='<div class="pvp-bracket">';
-			$output .='<div class="bracket-name">'.$bracket->slug.'</div>';
-			$output .='<div class="bracket-rating">'.$bracket->rating.'</div>';
+			$output .='<div class="bracket-name">'.$bracket['slug'].'</div>';
+			$output .='<div class="bracket-rating">'.$bracket['slug'].'</div>';
 			$output .='</div>';
 		}
 	}
@@ -283,64 +278,68 @@ function wowpi_show_pvp($character_name = null,$realm = null, $with_title = true
 }
 
 
-function wowpi_show_progression($character_name = null,$realm = null, $with_title = true)
+function wowpi_show_progression($characterName, $realm, $with_title = true)
 {
-	$progression = wowpi_get_character('progression',$character_name,$realm);
-	$character_data = wowpi_get_character(null, $character_name,$realm); 
+	$character = wowpi_getCharacterData($characterName,$realm);
+	$progression = $character['progression']; 
 	
-	$output .='<div class="module progression"><p>Uldir:</p>';
+	$output .='<div class="module progression"><p>Battle of Dazar\'alor:</p>';
 	$output .='<p class="raid-progress">';
 	
-	foreach($progression['raids'] as $raids) {
-		if($raids->name == 'Uldir')
+	//echo '<pre>';print_r($progression['8670']);echo '</pre>';
+	//var_dump($progression);
+	foreach($progression as $raidId=>$raids) {
+		
+		if($raidId == '8670')
 		{
 			$lfr=0;
 			$normal=0;
 			$heroic=0;
 			$mythic=0;
-			foreach($raids->bosses as $bosses)
+			foreach($raids['bosses'] as $bosses)
 			{
-				if (!empty($bosses->lfrKills))
+				if (!empty($bosses['lfrKills']))
 				{
 					$lfr++;
 				}
-				if (!empty($bosses->normalKills))
+				if (!empty($bosses['normalKills']))
 				{
 					$normal++;
 				}
-				if (!empty($bosses->heroicKills))
+				if (!empty($bosses['heroicKills']))
 				{
 					$heroic++;
 				}
-				if (!empty($bosses->mythicKills))
+				if (!empty($bosses['mythicKills']))
 				{
 					$mythic++;
 				}
 			}
 			
-			if ($lfr>=8) {
-				$output .='<span class="lfr raid-clear">LFR: '.$lfr.'/8</span><br />';
+			
+			if ($lfr>=9) {
+				$output .='<span class="lfr raid-clear">LFR: '.$lfr.'/9</span><br />';
 			}
 			else {
-				$output .='<span class="lfr">LFR: '.$lfr.'/8</span><br />';
+				$output .='<span class="lfr">LFR: '.$lfr.'/9</span><br />';
 			}
-			if ($normal>=8) {
-				$output .='<span class="normal raid-clear">Normal: '.$normal.'/8</span><br />';
-			}
-			else {
-				$output .='<span class="normal">Normal: '.$normal.'/8</span><br />';
-			}
-			if ($heroic>=8) {
-				$output .='<span class="heroic raid-clear">Heroic: '.$heroic.'/8</span><br />';
+			if ($normal>=9) {
+				$output .='<span class="normal raid-clear">Normal: '.$normal.'/9</span><br />';
 			}
 			else {
-				$output .='<span class="heroic">Heroic: '.$heroic.'/8</span><br />';
+				$output .='<span class="normal">Normal: '.$normal.'/9</span><br />';
 			}
-			if ($mythic>=8) {
-				$output .='<span class="mythic raid-clear">Mythic: '.$mythic.'/8</span><br />';
+			if ($heroic>=9) {
+				$output .='<span class="heroic raid-clear">Heroic: '.$heroic.'/9</span><br />';
 			}
 			else {
-				$output .='<span class="mythic">Mythic: '.$mythic.'/8</span><br />';
+				$output .='<span class="heroic">Heroic: '.$heroic.'/9</span><br />';
+			}
+			if ($mythic>=9) {
+				$output .='<span class="mythic raid-clear">Mythic: '.$mythic.'/9</span><br />';
+			}
+			else {
+				$output .='<span class="mythic">Mythic: '.$mythic.'/9</span><br />';
 			}
 			
 			
@@ -353,160 +352,157 @@ function wowpi_show_progression($character_name = null,$realm = null, $with_titl
 }
 
 
-function wowpi_show_ilvl($character_name = null, $realm = null, $with_title = true)
+function wowpi_show_ilvl($characterName, $realm, $with_title = true)
 {
-  $gear = wowpi_get_character('gear',$character_name, $realm);
-  $character_data = wowpi_get_character(null, $character_name,$realm);
-  $output = '<div class="module gear">';
-  $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('ilvl').'</div>' : '';
-  $output .= '<div class="itemlvl_total">'.$gear['averageItemLevel'].'</div>';
-  $output .= '</div>';
-  return $output;
+    $character = wowpi_getCharacterData($characterName,$realm);
+    $gear = $character['items'];
+    $output = '<div class="module gear">';
+    $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('ilvl').'</div>' : '';
+    $output .= '<div class="itemlvl_total">'.$gear['averageItemLevel'].'</div>';
+    $output .= '</div>';
+    return $output;
 }
 
 
-function wowpi_show_gear($character_name = null, $realm = null, $with_title = true)
+function wowpi_show_gear($characterName, $realm, $with_title = true)
 {
-  $gear = wowpi_get_character('gear',$character_name, $realm);
-  $character_data = wowpi_get_character(null, $character_name,$realm); 
-  
-  $output = '<div class="module gear">';
-  $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('gear').'</div>' : '';
-  $items = array('head','neck','shoulder','back','chest','shirt','tabard','wrist','hands','waist','legs','feet','finger1','finger2','trinket1','trinket2','mainHand','offHand');
-  foreach($items as $item)
-  {
-    if(isset($gear[$item]))
-    {
-      $advanced = array();
-      $the_item = $gear[$item];
-      $advanced['lvl'] = $character_data['level'];
-      if(isset($the_item->bonusLists)) $advanced['bonus'] = implode(':',$the_item->bonusLists);
-      if(isset($the_item->tooltipParams->set)) $advanced['pcs'] = implode(':',$the_item->tooltipParams->set);
-      /*
-      echo '<pre>';
-      print_r($the_item);
-      echo '</pre>';
-      */
-      $output .= wowpi_get_tooltip($the_item->id,'item','<img src="'.wowpi_retrieve_image($the_item->icon).'" class="q'.$the_item->quality.'">',$advanced,'class="q'.$the_item->quality.'" title="'.$the_item->name.'"');
-      //echo '<img src="//media.battle.net/wow/icons/36/'.$the_item->icon.'.jpg" />';
+    $character = wowpi_getCharacterData($characterName,$realm);
+    $gear = $character['items']['items'];
+
+    $output = '<div class="module gear">';
+    $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('gear').'</div>' : '';
+    $items = array('head','neck','shoulder','back','chest','shirt','tabard','wrist','hands','waist','legs','feet','finger1','finger2','trinket1','trinket2','mainHand','offHand');
+    foreach($items as $item) {
+        if(isset($gear[$item])) {
+            $the_item = $gear[$item];
+            $advanced = array();
+            $advanced['lvl'] = $character['profile']['level'];
+            $advanced['itemLevel'] = $gear[$item]['itemLevel'];
+            if(isset($the_item['bonuses'])) $advanced['bonus'] = implode(':',$the_item['bonuses']);
+            if(isset($the_item['armorSet'])) $advanced['pcs'] = implode(':',$the_item['armorSet']);
+            $relics = array();
+            if(isset($the_item['relics'])) {
+                foreach($the_item['relics'] as $relic) {
+                    $relics[] = $relic['itemId'];
+                }
+            }
+
+            elseif(isset($the_item['tooltipParams']) && isset($the_item['tooltipParams']['gem0'])) {
+                $relics[] = $the_item['tooltipParams']['gem0'];
+            }
+
+            if(!empty($relics)) {
+                $advanced['gems'] = implode(':',$relics);
+            }
+
+            $output .= wowpi_get_tooltip($the_item['id'],'item','<img src="'.wowpi_retrieve_image($the_item['icon']).'" class="q'.$the_item['quality'].'">',$advanced,'class="q'.$the_item['quality'].'" title="'.$the_item['name'].'"');
+        }
     }
-  }
-  $output .= '</div>';
-  return $output;
+
+    $output .= '</div>';
+    return $output;
 }
 
-function wowpi_show_artifact_weapon($character_name = null, $realm = null, $with_title = true)
+// MUST BE ELIMINATED? NO MORE ARTIFACT WEAPON
+function wowpi_show_artifact_weapon($characterName, $realm, $with_title = true)
 {
-  global $wowpi_plugin_dir;
-  $character_data = wowpi_get_character(null, $character_name,$realm); 
-  $spec_id = $character_data['spec_id'];
-  //echo $spec_id;
-  $traits_spells_json = file_get_contents($wowpi_plugin_dir.'/includes/artifact_traits_spells.json');
-  $output = '';
-  $traits_spells = json_decode($traits_spells_json,true);
+    $character = wowpi_getCharacterData($characterName,$realm);
+    global $wowpi_plugin_dir;
+    $specId = $character['talents']['currentSpec'];
 
-  /*
-  echo '<pre>';
-  print_r($traits_spells);
-  echo '</pre>';
-  */
+    $traits_spells_json = file_get_contents($wowpi_plugin_dir.'/includes/artifact_traits_spells.json');
+    $output = '';
+    $traits_spells = json_decode($traits_spells_json,true);
 
-  $gear = wowpi_get_character('gear',$character_name, $realm);
-  
-  $weapon = $gear['mainHand'];
-  //echo '<pre>';print_r($weapon);echo '</pre>';
-  
-  if(isset($weapon) && !empty($weapon))
-  {
-    $artifact_traits = $weapon->artifactTraits;
-    
-    if((!isset($artifact_traits) || empty($artifact_traits)) && isset($gear['offHand']))
+    $gear = $character['items']['items'];
+
+    $weapon = $gear['mainHand'];
+
+    if(isset($weapon) && !empty($weapon))
     {
-      $weapon = $gear['offHand'];
-      $artifact_traits = $weapon->artifactTraits;
-    }
-    
-    if(isset($artifact_traits) && !empty($artifact_traits))
-    {
-      $output .= '<div class="module artifact_weapon">';
-      $output .= '<div class="artifact_traits">';
-      $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('artifact_traits').'</div>' : '';
-      $artifact_id = $weapon->id;
-      $artifact_weapon = wowpi_get_artifact($artifact_id);
-      
-      //echo '<pre>';print_r($artifact_weapon);echo '</pre>';
-      
-      
-      foreach($artifact_traits as $trait)
-      {
-        $trait_id = $trait->id;
-        $rank = $trait->rank - 1;
+        $artifact_traits = $weapon['artifactTraits'];
+        if((!isset($artifact_traits) || empty($artifact_traits)) && isset($gear['offHand']))
+        {
+            $weapon = $gear['offHand'];
+            $artifact_traits = $weapon['artifactTraits'];
+        }
 
-        if(isset($trait_id) && isset($rank) && isset($traits_spells[$trait_id][$rank])) {
-            $spell_id = $traits_spells[$trait_id][$rank];
-            $spell = wowpi_get_spell($spell_id);
+        if(isset($artifact_traits) && !empty($artifact_traits)) {
+            $output .= '<div class="module artifact_weapon">';
+            $output .= '<div class="artifact_traits">';
+            $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('artifact_traits').'</div>' : '';
+            $artifact_id = $weapon['id'];
+            $artifact_weapon = wowpi_getArtifact($artifact_id);
+
+            foreach($artifact_traits as $trait) {
+                $trait_id = $trait['id'];
+                $rank = $trait['rank']-1;
+
+                if(isset($trait_id) && isset($rank) && isset($traits_spells[$trait_id][$rank])) {
+                    $spell_id = $traits_spells[$trait_id][$rank];
+                    $spell = wowpi_getSpell($spell_id);
             $link_name = '<img src="' . wowpi_retrieve_image($spell['icon']) . '" alt="' . $spell['name'] . '" />';
             $output .= wowpi_get_tooltip($spell['id'], 'spell', $link_name, array('rank' => $rank), 'class="_q' . $rank . '"');
         }
       }
       $output .= '</div>';
       $output .= '<div class="artifact_relics">';
-      $artifact_relics = $weapon->relics;
+      $artifact_relics = $weapon['relics'];
       if(isset($artifact_relics) && !empty($artifact_relics))
       {
         $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('artifact_relics').'</div>' : '';
         foreach($artifact_relics as $relic)
         {
-          $item = wowpi_get_item($relic->itemId);
-          $output .= wowpi_get_tooltip($relic->itemId,'item','<img src="'.wowpi_retrieve_image($item['icon']).'" alt="'.$item['name'].'" />',array('spec'=>$spec_id));
+          $item = wowpi_getItem($relic['itemId']);
+          $output .= wowpi_get_tooltip($relic['itemId'],'item','<img src="'.wowpi_retrieve_image($item['icon']).'" alt="'.$item['name'].'" />',array('spec'=>$specId));
         }
       }
       $output .= '</div>';
       $output .= '</div>';
     }
   }
-  
+
   return $output;
 }
 
-function wowpi_show_activity($character_name = null, $realm = null, $with_title = true)
+function wowpi_show_activity($characterName, $realm, $with_title = true)
 {
-  $character_activity = wowpi_get_character('feed',$character_name,$realm);
+    $character = wowpi_getCharacterData($characterName,$realm);
+  $character_activity = $character['feed'];
   if(!empty($character_activity))
   {
     echo '<ul>';
     foreach($character_activity as $activity)
     {
       echo '<li>';
-      if($activity->type=='BOSSKILL')
+      if($activity['type']=='BOSSKILL')
       {
-        echo '<img src="'.wowpi_retrieve_image($activity->achievement->icon).'" class="q">';
+        echo '<img src="'.wowpi_retrieve_image($activity['achievement']['icon']).'" class="q">';
       }
-      if($activity->type=='ACHIEVEMENT')
+      if($activity['type']=='ACHIEVEMENT')
       {
-        echo '<img src="'.wowpi_retrieve_image($activity->achievement->icon).'" class="q">';
+        echo '<img src="'.wowpi_retrieve_image($activity['achievement']['icon']).'" class="q">';
       }
-      if($activity->type=='LOOT')
+      if($activity['type']=='LOOT')
       {
-        echo '<img src="'.wowpi_retrieve_image($activity->itemId).'" class="q">[icondb='.$activity->itemId.']';
+        echo '<img src="'.wowpi_retrieve_image($activity['itemId']).'" class="q">[icondb='.$activity['itemId'].']';
       }
-      //echo '<img src="//media.battle.net//wow/icons/36/'.$activity->achievement->icon.'.jpg" />';
-      //echo date('d.m.Y H:i:s', $activity->timestamp);
       echo '</li>';
     }
     echo '</ul>';
   }
 }
 
-function wowpi_show_talents($character_name = null, $realm = null, $with_title = true)
+function wowpi_show_talents($characterName, $realm, $with_title = true)
 {
-  $character_talents = wowpi_get_character('talents',$character_name,$realm);
+    $character = wowpi_getCharacterData($characterName,$realm);
+    $character_talents = $character['talents']['talents'];
   //echo '<pre>';print_r($character_talents).'</pre>';
-  
-  
+
+
   $output = '';
   $output .= '<div class="module talents">';
-  $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('talents').'</div>' : ''; 
+  $output .= ($with_title==true) ? '<div class="title">'.wowpi_translate_title('talents').'</div>' : '';
   foreach($character_talents as $spec)
   {
     $output .= '<div class="spec'.(($spec['selected']=='1') ? ' selected' : '').'">';

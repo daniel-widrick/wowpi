@@ -24,7 +24,7 @@ function wowpi_shortcode_guild_achievements($atts, $guild_name = '')
   
   $achievements = wowpi_get_guild('achievements',$guild_name, $realm = null, null, null);	
 	
-	$general_guild_achievements = wowpi_general_data('achievements','guild');
+	$general_guild_achievements = wowpi_getGuildAchievements();
 	
 	$total_general_achievement_points = $general_guild_achievements['total_points'];
 	$total_guild_achievement_points = 0;
@@ -160,8 +160,8 @@ function wowpi_shortcode_guild_progression($atts, $guild_name = '')
 function wowpi_shortcode_guild_tabard($atts, $guild_name = '')
 {
   global $wowpi_plugin_url;
-  $races = wowpi_general_data('races');
-  $classes = wowpi_general_data('classes');  
+  $races = wowpi_getRaces();
+  $classes = wowpi_getClasses();
   
   $output = '';
   if(strlen($guild_name)==0) $guild_name = null;
@@ -191,148 +191,136 @@ function wowpi_shortcode_guild_tabard($atts, $guild_name = '')
 
 function wowpi_shortcode_guild_members($atts, $guild_name = '')
 {
-  global $wowpi_plugin_url;
-  global $wowpi_options;
-  $races = wowpi_general_data('races');
-  $classes = wowpi_general_data('classes');  
-  
-  $output = '';
-  if(strlen($guild_name)==0) $guild_name = null;
-  $realm = null;
-  
-  $pull_guild_atts = shortcode_atts( array(
-    'guild' => $guild_name,
-    'realm' => $realm,
-    'ranks' => '',
-    'id' => 'wowpi_guild_members',
-    'class' => '',
-    'order_by' => '1',
-    'rows_per_page' => '25',
-    'direction' => 'desc',
-    'paginate' => 'true',
-    'linkto' => 'simple',
-    'hidecolumns' => '',
-    'rank_names' => '',
-    'table_style' => ''
+    global $wowpi_plugin_url;
+    global $wowpi_options;
+    $races = wowpi_getRaces();
+    $classes = wowpi_getClasses();
+
+    $output = '';
+    if(strlen($guild_name)==0) $guild_name = null;
+    $realm = null;
+
+    $pull_guild_atts = shortcode_atts( array(
+        'guild' => $guild_name,
+        'realm' => wowpi_getRealm(),
+        'ranks' => '',
+        'id' => 'wowpi_guild_members',
+        'class' => '',
+        'order_by' => '1',
+        'rows_per_page' => '25',
+        'direction' => 'desc',
+        'paginate' => 'true',
+        'linkto' => 'simple',
+        'hidecolumns' => '',
+        'rank_names' => '',
+        'table_style' => ''
     ), $atts );
-  if($pull_guild_atts==null)
-  {
-    return false;
-  }
-  $datatable_settings = '';
-  $paginate = wp_kses_post($pull_guild_atts[ 'paginate' ]);
-  if($paginate == 'false') $datatable_settings .= ' "paging":   false,';
-  $guild = wp_kses_post($pull_guild_atts[ 'guild' ]);
-  $realm = wp_kses_post($pull_guild_atts[ 'realm' ]);
-  $ranks = wp_kses_post($pull_guild_atts[ 'ranks' ]);
-  $rank_names = wp_kses_post($pull_guild_atts[ 'rank_names' ]);
-	$table_id = wp_kses_post($pull_guild_atts[ 'id' ]);
-  $the_ranks = array();
-  
-  if(strlen($rank_names) > 0)
-  {
-    $rank_names_arr = explode('|',$rank_names);
-    foreach($rank_names_arr as $rank)
-    {
-      $rank_arr = explode(':',$rank);
-      $rank_number = trim($rank_arr[0]);
-      $rank_name = '<span>'.$rank_number.'. </span>'.trim($rank_arr[1]);
-      $the_ranks[$rank_number] = $rank_name;
+    if($pull_guild_atts==null) {
+        return false;
     }
-    //print_r($the_ranks);
-  }
-  
-  $linkto = wp_kses_post($pull_guild_atts[ 'linkto' ]);
-  if(strlen($ranks)>0)
-  {
-    $ranks_arr = explode(',',$ranks);
-  }
-  $hide_columns = wp_kses_post($pull_guild_atts[ 'hidecolumns' ]);
-  if(strlen($hide_columns)>0)
-  {
-    $hide_arr = explode(',',$hide_columns);
-    
-    $datatable_settings .= '"columnDefs": [';
-    foreach($hide_arr as $column)
-    {
-      $datatable_settings .= '{"targets":'.(trim($column)-1).', "visible":false},';
+
+    $datatable_settings = '';
+    $paginate = wp_kses_post($pull_guild_atts[ 'paginate' ]);
+    if($paginate == 'false') $datatable_settings .= ' "paging":   false,';
+    $guild = wp_kses_post($pull_guild_atts[ 'guild' ]);
+    $realm = wp_kses_post($pull_guild_atts[ 'realm' ]);
+    $ranks = wp_kses_post($pull_guild_atts[ 'ranks' ]);
+    $rank_names = wp_kses_post($pull_guild_atts[ 'rank_names' ]);
+    $table_id = wp_kses_post($pull_guild_atts[ 'id' ]);
+    $the_ranks = array();
+
+    if(strlen($rank_names) > 0) {
+        $rank_names_arr = explode('|',$rank_names);
+        foreach($rank_names_arr as $rank) {
+            $rank_arr = explode(':',$rank);
+            $rank_number = trim($rank_arr[0]);
+            $rank_name = '<span>'.$rank_number.'. </span>'.trim($rank_arr[1]);
+            $the_ranks[$rank_number] = $rank_name;
+        }
     }
-    $datatable_settings .= '],';
-  }
-  
-  $table_style = wp_kses_post($pull_guild_atts[ 'table_style' ]);
-  $table_style_arr = explode('|',$table_style);
-  $table_style = array_flip($table_style_arr);
-  
-  if(array_key_exists('notop',$table_style))
-  {
-    $datatable_settings .= '"lengthChange": false, "searching": false,';
-  }
-  
-  // order by inside table
-  $order_by = wp_kses_post($pull_guild_atts['order_by']);
-  $order_by_arr = explode('|',$order_by);
-  if(sizeof($order_by_arr)==1) $order_by_arr[1] = 'asc';
-  $datatable_settings .= '"order":['.(intval($order_by_arr[0])-1).', \''.strtolower($order_by_arr[1]).'\'],';
-  
-  // number of rows per page
-  $rows_per_page = wp_kses_post($pull_guild_atts[ 'rows_per_page' ]);
-  $datatable_settings .= '"pageLength": '.$rows_per_page.',';
-  
-  $guild_members = wowpi_get_guild('members',$guild,$realm);
-  //$guild_members = sort_array_by($guild_members,);
-  if(isset($guild_members) && !empty($guild_members))
-  {
-    $output .= '<table id="'.$table_id.'" class="'.(isset($pull_guild_atts['class']) && strlen($pull_guild_atts['class'])>0 ? $pull_guild_atts['class'] : 'wowpi_guild_roster').'"';
-    $output .= '>';
-    $output .= '<thead>';
-    $output .= '<tr>';
-    $output .= '<th>'.__('Name','wowpi').'</th>';
-    if(!array_key_exists('profile_picture',$table_style))
-    {
-      $output .= '<th>'.__('Race','wowpi').'</th>';
-      $output .= '<th>'.__('Class','wowpi').'</th>';
+
+    $linkto = wp_kses_post($pull_guild_atts[ 'linkto' ]);
+    if(strlen($ranks)>0) {
+        $ranks_arr = explode(',',$ranks);
     }
-    else
-    {
-      $output .= '<th>'.__('The one','wowpi').'</th>';
+
+    $hide_columns = wp_kses_post($pull_guild_atts[ 'hidecolumns' ]);
+    if(strlen($hide_columns)>0) {
+        $hide_arr = explode(',',$hide_columns);
+        $datatable_settings .= '"columnDefs": [';
+        foreach($hide_arr as $column) {
+            $datatable_settings .= '{"targets":'.(trim($column)-1).', "visible":false},';
+        }
+        $datatable_settings .= '],';
     }
-    $output .= '<th>'.__('Level','wowpi').'</th>';
-    $output .= '<th>'.__('Rank','wowpi').'</th>';
-    $output .= '<th>'.__('Achievement Points','wowpi').'</th>';
-    $output .= '</thead>';
-    $output .= '<tbody>';
-    foreach($guild_members as $member)
-    {
-      if(isset($ranks_arr) && !in_array($member['rank'],$ranks_arr))
-      {
-        continue;
-      }
-      $locale = explode('_',$wowpi_options['locale']);
-      $output .= '<tr class="rank_'.$member['rank'].' class_'.$member['class'].' spec_'.strtolower($member['spec']['name']).' race_'.strtolower(str_replace(' ','_',$races[$member['race']]['name'])).' rank_'.$member['rank'].'">';
-      if($linkto!='simple' && $linkto!='advanced')
-      {
-        $url = $linkto.strtolower(str_replace(' ','-',$member['realm'])).'/'.$member['name'];
-      }
-      else
-      {
-        $url = '//'.$wowpi_options['region'].'.battle.net/wow/'.$locale[0].'/character/'.strtolower(str_replace(' ','-',$member['realm'])).'/'.$member['name'].'/'.$linkto;
-      }
-      $output .= '<td class="name"><a href="'.$url.'" target="_blank">'.$member['name'].'</a></td>';
-      if(!array_key_exists('profile_picture',$table_style))
-      {
-        $output .= '<td class="race race_'.strtolower(str_replace(' ','_',$races[$member['race']]['name'])).' gender_'.$member['gender'].'"><img src="'.wowpi_retrieve_image('race_'.$member['race'].'_'.$member['gender'], 'icon', 18).'" alt="'.$races[$member['race']]['name'].'" /><span> '.$races[$member['race']]['name'].'</span></td>';
-        $output .= '<td class="class class_'.$member['class'].' spec_'.strtolower($member['spec']['name']).' role_'.strtolower($member['spec']['role']).'"><img src="'.wowpi_retrieve_image('class_'.$member['class'], 'icon', 18).'" alt="'.$classes[$member['class']]['name'].'" /><span> '.$classes[$member['class']]['name'].'</span></td>';
-      }
-      else
-      {
-        $output .= '<td class="profile_picture">';
-        //$output .= $member['thumbnail'];
-        $image_file = wowpi_get_character_image(null,$member['thumbnail']);
-        $upload_dir = wp_upload_dir();
-        $output .= '<img src="'.$upload_dir['baseurl'].'/wowpi/character_avatar_'.$image_file.'.jpg'.'" class="character_image" />';
-        $output .= '</td>';
-      }
+
+    $table_style = wp_kses_post($pull_guild_atts[ 'table_style' ]);
+    $table_style_arr = explode('|',$table_style);
+    $table_style = array_flip($table_style_arr);
+
+    if(array_key_exists('notop',$table_style)) {
+        $datatable_settings .= '"lengthChange": false, "searching": false,';
+    }
+
+    // order by inside table
+    $order_by = wp_kses_post($pull_guild_atts['order_by']);
+    $order_by_arr = explode('|',$order_by);
+    if(sizeof($order_by_arr)==1) $order_by_arr[1] = 'asc';
+    $datatable_settings .= '"order":['.(intval($order_by_arr[0])-1).', \''.strtolower($order_by_arr[1]).'\'],';
+
+    // number of rows per page
+    $rows_per_page = wp_kses_post($pull_guild_atts[ 'rows_per_page' ]);
+    $datatable_settings .= '"pageLength": '.$rows_per_page.',';
+
+    $guild = wowpi_getGuildData($guild,$realm);
+
+    $guild_members = $guild['members'];
+
+    //$guild_members = sort_array_by($guild_members,);
+    if(isset($guild_members) && !empty($guild_members)) {
+        $output .= '<table id="'.$table_id.'" class="'.(isset($pull_guild_atts['class']) && strlen($pull_guild_atts['class'])>0 ? $pull_guild_atts['class'] : 'wowpi_guild_roster').'"';
+        $output .= '>';
+        $output .= '<thead>';
+        $output .= '<tr>';
+        $output .= '<th>'.__('Name','wowpi').'</th>';
+        if(!array_key_exists('profile_picture',$table_style)) {
+            $output .= '<th>'.__('Race','wowpi').'</th>';
+            $output .= '<th>'.__('Class','wowpi').'</th>';
+        }
+        else {
+            $output .= '<th>'.__('The one','wowpi').'</th>';
+        }
+        $output .= '<th>'.__('Level','wowpi').'</th>';
+        $output .= '<th>'.__('Rank','wowpi').'</th>';
+        $output .= '<th>'.__('Achievement Points','wowpi').'</th>';
+        $output .= '</thead>';
+        $output .= '<tbody>';
+        foreach($guild_members as $member) {
+            if(isset($ranks_arr) && !in_array($member['rank'],$ranks_arr)) {
+                continue;
+            }
+
+            $locale = explode('_',wowpi_getLocale());
+            $output .= '<tr class="rank_'.$member['rank'].' class_'.$member['class'].' spec_'.strtolower($member['spec']).' race_'.strtolower(str_replace(' ','_',$races[$member['race']]['name'])).' rank_'.$member['rank'].'">';
+            if($linkto!='simple' && $linkto!='advanced') {
+                $url = $linkto.strtolower(str_replace(' ','-',$member['realm'])).'/'.$member['name'];
+            }
+            else {
+                $url = 'https://'.wowpi_getRegion().'.battle.net/wow/'.$locale[0].'/character/'.strtolower(str_replace(' ','-',$member['realm'])).'/'.$member['name'].'/'.$linkto;
+            }
+            $output .= '<td class="name"><a href="'.$url.'" target="_blank">'.$member['name'].'</a></td>';
+            if(!array_key_exists('profile_picture',$table_style)) {
+                $output .= '<td class="race race_'.strtolower(str_replace(' ','_',$races[$member['race']]['name'])).' gender_'.$member['gender'].'"><img src="'.wowpi_retrieve_image('race_'.$member['race'].'_'.$member['gender'], 'icon', 18).'" alt="'.$races[$member['race']]['name'].'" /><span> '.$races[$member['race']]['name'].'</span></td>';
+                $output .= '<td class="class class_'.$member['class'].' spec_'.strtolower($member['spec']).' role_'.strtolower($member['role']).'"><img src="'.wowpi_retrieve_image('class_'.$member['class'], 'icon', 18).'" alt="'.$classes[$member['class']]['name'].'" /><span> '.$classes[$member['class']]['name'].'</span></td>';
+            }
+            else {
+                $output .= '<td class="profile_picture">';
+                //$output .= $member['thumbnail'];
+                $image_file = wowpi_get_character_image(null,$member['thumbnail']);
+                $upload_dir = wp_upload_dir();
+                $output .= '<img src="'.$upload_dir['baseurl'].'/wowpi/character_avatar_'.$image_file.'.jpg'.'" class="character_image" />';
+                $output .= '</td>';
+            }
       $output .= '<td class="level">'.$member['level'].'</td>';
       $output .= '<td class="grank grank_'.$member['rank'].'">';
       if($member['rank']=='0')
@@ -344,7 +332,7 @@ function wowpi_shortcode_guild_members($atts, $guild_name = '')
         $output .= (array_key_exists($member['rank'],$the_ranks) ? $the_ranks[$member['rank']] : (__('Rank','wowpi').' '.$member['rank']));
       }
       $output .= '</td>';
-      $output .= '<td class="achievement_points">'.$member['achievement_points'].' <img src="'.$wowpi_plugin_url.'assets/images/theme/shield.png" /></td>';
+      $output .= '<td class="achievement_points">'.$member['achievementPoints'].' <img src="'.$wowpi_plugin_url.'assets/images/theme/shield.png" /></td>';
       $output .= '</tr>';      
     }
     $output .= '</tbody>';

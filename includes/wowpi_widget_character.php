@@ -1,19 +1,18 @@
 <?php
 // Creating the widget 
 class wowpi_widget_character extends WP_Widget {
+    function __construct() {
+        parent::__construct('wowpi_widget_character', __('WoWpi Character Widget', 'wowpi_widget_domain'), array( 'description' => __( 'You can simply show your WoW character data by using this widget', 'wowpi_widget_domain' ), ) );
+    }
 
-  function __construct() {
-    parent::__construct('wowpi_widget_character', __('WoWpi Character Widget', 'wowpi_widget_domain'), array( 'description' => __( 'You can simply show your WoW character data by using this widget', 'wowpi_widget_domain' ), ) );
-  }
-
-  // Creating widget front-end
-  // This is where the action happens
-  public function widget( $args, $instance ) {
-		$realm = $instance['realm'];
-    $character_name = $instance['character_name'];
-		if((strpos($character_name,'[username]')!==false || strpos($character_name,'[nickname]')!==false))
+    // Creating widget front-end
+    // This is where the action happens
+    public function widget( $args, $instance ) {
+        $realm = $instance['realm'];
+        $character_name = $instance['character_name'];
+        if((strpos($character_name,'[username]')!==false || strpos($character_name,'[nickname]')!==false))
 		{
-			if(is_user_logged_in()===FALSE)
+		    if(is_user_logged_in()===FALSE)
 			{
 				return '';
 			}
@@ -27,13 +26,13 @@ class wowpi_widget_character extends WP_Widget {
 				$realm = $guild_members[$character_name]['realm'];
 			}
 		}
-		
-    $show = $instance['show'];
-		//$http_req = $instance['reduce_http_req'];
-    // before and after widget arguments are defined by themes
-    echo $args['before_widget'];
-    if ( ! empty( $title ) ) echo $args['before_title'] . $title . $args['after_title'];
-		if($character_name!==false && strlen($character_name)>0)
+
+		$show = $instance['show'];
+
+        // before and after widget arguments are defined by themes
+        echo $args['before_widget'];
+        if ( ! empty( $title ) ) echo $args['before_title'] . $title . $args['after_title'];
+        if($character_name!==false && strlen($character_name)>0)
 		{
 			wowpi_show_character($show,$character_name,$realm);
 		}
@@ -46,7 +45,7 @@ class wowpi_widget_character extends WP_Widget {
   public function form( $instance ) {
 		//print_r($instance);
     global $wowpi_character_showable;
-    $options = wowpi_widrick_get_option('wowpi_options');
+    $options = get_option('wowpi_options');
     if ( isset( $instance[ 'character_name' ] ) ) {
       $character_name = $instance[ 'character_name' ];
     }

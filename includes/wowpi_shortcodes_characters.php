@@ -42,12 +42,11 @@ function wowpi_shortcode_character($atts,$character)
   }
   $show_str = wp_kses_post($pull_character_atts['show']);
   $show = explode(',',$show_str);
-  
-  global $wowpi_plugin_dir;
+
   global $wowpi_plugin_url;
-  $races = wowpi_general_data('races');
+  $races = wowpi_getRaces();
   global $wowpi_options;
-  $classes = wowpi_general_data('classes');
+  $classes = wowpi_getClasses();
   $guild = wowpi_get_character('guild',$character_name,$realm);
     
   $character_data = wowpi_get_character(null, $character_name,$realm);
