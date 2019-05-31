@@ -113,9 +113,10 @@ $cacheURLResult = wowpi_widrick_url_cache_get($cacheURLHash);
 if($cacheURLResult !== false)
 {
 	//var_dump($service_url);
-	echo '<!-- cacheHit: ' . $service_url . '-->';
+	echo '<!-- cacheHit: ' . $cacheURL . '-->';
 	return $cacheURLResult;
 }
+echo '<!-- cacheMISS!!!: ' . $cacheURL . '-->';
 
 //Start widrick fix for broken wordpress curl
 $ch = curl_init();

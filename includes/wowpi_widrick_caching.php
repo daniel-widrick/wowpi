@@ -73,7 +73,12 @@ function wowpi_widrick_character_cache_test($characterHash)
 
 function wowpi_widrick_showChar_cache_get($charShowHash)
 {
-	return wowpi_widrick_character_cache_get($charShowHash);
+	$showChar = wowpi_widrick_character_cache_get($charShowHash);
+	if($showChar === false)
+		echo "\n<!-- showCharCacheMiss: " . $charShowHash . "-->\n";
+	else
+		echo "\n<!-- showCharCacheHit: " . $charShowHash . "-->\n";
+	return $showChar;
 }
 function wowpi_widrick_url_cache_get($urlHash)
 {
