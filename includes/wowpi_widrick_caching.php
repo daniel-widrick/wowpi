@@ -16,6 +16,12 @@ define('WOWPI_WIDRICK_CACHING_MODE','recurrent');
 define('WOWPI_WIDRICK_CACHING_TIME',86400);
 define('WOWPI_WIDRICK_CACHING_BASE_DIR','./'.'wowpicache/');
 
+
+function wowpi_widrick_url_cache_save($urlHash,$response)
+{
+	//Shhhh character function is general purpose
+	return wowpi_widrick_character_cache_save($urlHash,$response);
+}
 function wowpi_widrick_character_cache_save($characterHash,$character)
 {
 	$time = time();
@@ -60,7 +66,10 @@ function wowpi_widrick_character_cache_test($characterHash)
 	}
 	return false;
 }
-
+function wowpi_widrick_url_cache_get($urlHash)
+{
+	return wowpi_widrick_character_cache_get($urlHash);
+}
 function wowpi_widrick_character_cache_get($characterHash)
 {
 	if(wowpi_widrick_character_cache_test($characterHash))

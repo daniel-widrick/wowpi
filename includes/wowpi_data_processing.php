@@ -106,8 +106,16 @@ function wowpi_get_curl($api, $name, $field, $realm = null, $region = null, $loc
 
 function wowpi_retrieve_data($service_url)
 {
+//Hack-a-cache
+$cacheURL = explode('access_token',$service_url,2)[0];
+$cacheURLHash = md5($cacheURL);
+$cacheURLResult = wowpi_widrick_url_cache_get($cacheURLHash);
+if($cacheURLResult !== false)
+{
+	var_dump($cacheURL);
+	return $cacheURLResult;
+}
 
-	
 	//Start widrick fix for broken wordpress curl
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $service_url);
@@ -123,6 +131,7 @@ if($response === false)
 	echo "CURL DIED!";
 	return false;
 }
+wowpi_widrick_url_cache_save($cacheURLHash,$response);
 return $response;
 //End widrick fix for broken wordpress curl
 
